@@ -1,4 +1,4 @@
-package com.example.notforgot
+package com.example.notforgot.ui.register
 
 import androidx.fragment.app.Fragment
 
