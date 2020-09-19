@@ -1,6 +1,7 @@
 package com.example.notforgot.api
 
 import com.example.notforgot.api.service.AuthService
+import com.example.notforgot.api.service.ItemsService
 import com.example.notforgot.util.Constants
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -36,4 +37,5 @@ private inline fun <reified T> createService(): T =
 
 object NetworkService {
     val authService by lazy { createService<AuthService>() }
+    val itemsService by lazy { createService<ItemsService>() }
 }
