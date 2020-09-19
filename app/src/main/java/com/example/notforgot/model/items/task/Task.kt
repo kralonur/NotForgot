@@ -1,7 +1,7 @@
 package com.example.notforgot.model.items.task
 
-import com.example.notforgot.model.items.priority.Priority
 import com.example.notforgot.model.items.category.Category
+import com.example.notforgot.model.items.priority.Priority
 import com.squareup.moshi.Json
 
 data class Task(
