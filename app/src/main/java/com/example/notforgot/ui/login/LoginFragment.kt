@@ -29,6 +29,7 @@ class LoginFragment : Fragment() {
 
         binding.buttonLogin.setOnClickListener {
             checkInputs()
+            viewModel.navigateToMain()
         }
 
         binding.buttonRegister.setOnClickListener {

@@ -13,6 +13,7 @@ import timber.log.Timber
 private fun getHTTPClient(): OkHttpClient {
     Timber.i("getHTTPClient called")
     return OkHttpClient.Builder()
+        .addInterceptor(RequestInterceptor())
         .build()
 }
 
