@@ -8,4 +8,16 @@
     <string name="repeat_password">Repeat Password</string>
     <string name="you_have_no_task_todo_yet">You have no task todo yet</string>
     <string name="such_a_lucky_person_you_are">Such a lucky person you are!</string>
+    <string name="title">Title</string>
+    <string name="create_task">Create Task</string>
+    <string name="description">Description</string>
+    <string name="priority">Priority</string>
+    <string name="category">Category</string>
+    <string name="do_until">Do Until</string>
+    <string name="create">Create</string>
+    <string name="save_q">Save?</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="create_category">Create category</string>
+
 </resources>

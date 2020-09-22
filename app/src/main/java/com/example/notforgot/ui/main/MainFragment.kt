@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentMainBinding
 import com.example.notforgot.model.items.task.Task
 import com.example.notforgot.recview.TaskAdapter
@@ -33,6 +34,12 @@ class MainFragment : Fragment(), TaskClickListener {
 
         viewModel.taskList.observe(viewLifecycleOwner) {
             adapter.submitList(it)
+        }
+
+        binding.addButton.setOnClickListener {
+            findNavController().navigate(
+                MainFragmentDirections.actionMainFragmentToTaskCreateFragment()
+            )
         }
     }
 
