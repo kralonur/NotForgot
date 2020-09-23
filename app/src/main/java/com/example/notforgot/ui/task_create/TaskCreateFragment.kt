@@ -15,6 +15,7 @@ import com.example.notforgot.model.items.category.Category
 import com.example.notforgot.model.items.category.CategoryPost
 import com.example.notforgot.model.items.priority.Priority
 import com.example.notforgot.model.items.task.TaskPost
+import com.example.notforgot.util.fromMsToEpoch
 import com.example.notforgot.util.showShortText
 import com.example.notforgot.util.toDateString
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -37,6 +38,7 @@ class TaskCreateFragment : Fragment() {
     ): View? {
         binding = LayoutDetailCreateBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
+        setLayout()
         return binding.root
     }
 
@@ -91,6 +93,10 @@ class TaskCreateFragment : Fragment() {
             showCategoryDialog()
         }
 
+    }
+
+    private fun setLayout() {
+        binding.groupCreate.visibility = View.VISIBLE
     }
 
     private fun checkInput(): Boolean {
@@ -149,9 +155,8 @@ class TaskCreateFragment : Fragment() {
         val picker: MaterialDatePicker<*> = builder.build()
         picker.show(childFragmentManager, picker.toString())
         picker.addOnPositiveButtonClickListener { time ->
-            //Divide to 1000 because server accepts seconds not milliseconds
             (time as Long).let {
-                deadline = it.div(1000)
+                deadline = it.fromMsToEpoch()
                 binding.layoutCreate.endDate.setText(it.toDateString())
             }
         }

@@ -18,6 +18,11 @@ class MainViewModel : ViewModel() {
     val taskList: LiveData<List<Task>>
         get() = _taskList
 
+    private val _navigateDetail = MutableLiveData<Task?>()
+    val navigateDetail: LiveData<Task?>
+        get() = _navigateDetail
+
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -31,5 +36,13 @@ class MainViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    fun navigateToDetail(task: Task) {
+        _navigateDetail.postValue(task)
+    }
+
+    fun navigateToDetailDone() {
+        _navigateDetail.postValue(null)
     }
 }

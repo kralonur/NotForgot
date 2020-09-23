@@ -22,3 +22,11 @@ fun Long.toDateString(): String {
     val netDate = Date(this)
     return sdf.format(netDate)
 }
+
+fun Long.fromMsToEpoch(): Long {
+    return this.div(1000)
+}
+
+fun Long.fromEpochToMs(): Long {
+    return this.times(1000)
+}

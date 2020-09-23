@@ -41,9 +41,18 @@ class MainFragment : Fragment(), TaskClickListener {
                 MainFragmentDirections.actionMainFragmentToTaskCreateFragment()
             )
         }
+
+        viewModel.navigateDetail.observe(viewLifecycleOwner) {
+            it?.let {
+                findNavController().navigate(
+                    MainFragmentDirections.actionMainFragmentToTaskDetailFragment(it.id)
+                )
+            }
+            viewModel.navigateToDetailDone()
+        }
     }
 
     override fun onClick(task_data: Task) {
-        //TODO("Not yet implemented")
+        viewModel.navigateToDetail(task_data)
     }
 }

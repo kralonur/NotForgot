@@ -19,5 +19,9 @@
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="create_category">Create category</string>
+    <string name="completed">Completed</string>
+    <string name="not_completed">Not completed</string>
+    <string name="until">Until %s</string>
+    <string name="edit">Edit</string>
 
 </resources>
