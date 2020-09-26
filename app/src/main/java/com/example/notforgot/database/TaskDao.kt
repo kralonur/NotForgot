@@ -9,7 +9,10 @@ interface TaskDao {
     @Query("SELECT * FROM task")
     suspend fun getAll(): List<DbTask>
 
-    @Query("SELECT * FROM task WHERE Id = (:id)")
+    @Query("SELECT * FROM task WHERE category_id = (:id)")
+    suspend fun getAllByCategoryId(id: Int): List<DbTask>
+
+    @Query("SELECT * FROM task WHERE id = (:id)")
     suspend fun getTaskById(id: Int): DbTask
 
     @Update

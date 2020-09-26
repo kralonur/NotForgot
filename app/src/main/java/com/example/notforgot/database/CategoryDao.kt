@@ -15,7 +15,7 @@ interface CategoryDao {
     suspend fun getCategoryById(categoryId: Int): DbCategory
 
     @Insert
-    suspend fun insertCategory(category: DbCategory)
+    suspend fun insertCategory(category: DbCategory) : Long
 
     @Insert
     suspend fun insertAll(categories: List<DbCategory>)

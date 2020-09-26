@@ -11,8 +11,22 @@ interface LogDao {
     @Query("SELECT * FROM log")
     suspend fun getAll(): List<DbLog>
 
+    @Query("SELECT * FROM log WHERE model = 'CATEGORY'")
+    suspend fun getAllCategory(): List<DbLog>
+
+    @Query("SELECT * FROM log WHERE model = 'TASK'")
+    suspend fun getAllTask(): List<DbLog>
+
     @Query("SELECT * FROM log WHERE model_id = (:modelId)")
     suspend fun getLogByModelId(modelId: Int): DbLog
+
+
+    @Query("SELECT * FROM log WHERE model_id = (:modelId) AND model = 'CATEGORY'")
+    suspend fun getCategoryLogById(modelId: Int): DbLog
+
+
+    @Query("SELECT * FROM log WHERE model_id = (:modelId) AND model = 'TASK'")
+    suspend fun getTaskLogById(modelId: Int): DbLog
 
     @Delete
     suspend fun delete(log: DbLog)
