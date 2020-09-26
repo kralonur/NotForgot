@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentLoginBinding
+import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.util.showShortText
+import timber.log.Timber
 
 class LoginFragment : Fragment() {
     private val viewModel by viewModels<LoginViewModel>()
@@ -17,7 +19,7 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -28,8 +30,18 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonLogin.setOnClickListener {
-            checkInputs()
-            viewModel.navigateToMain()
+            if (checkInputs())
+                viewModel.login(binding.mail.text.toString(), binding.password.text.toString())
+                    .observe(viewLifecycleOwner) {
+                        when (it) {
+                            is ResultWrapper.Loading -> Timber.i("Loading")
+                            is ResultWrapper.Error -> Timber.i("Error")
+                            is ResultWrapper.Success -> {
+                                viewModel.completeLogin(it.value)
+                                viewModel.navigateToMain()
+                            }
+                        }
+                    }
         }
 
         binding.buttonRegister.setOnClickListener {
@@ -55,13 +67,19 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun checkInputs() {
+    private fun checkInputs(): Boolean {
+        var returnVal = true
+
         if (binding.mail.text.isNullOrEmpty()) {
             requireContext().showShortText("Mail cannot be empty!")
+            returnVal = false
         }
         if (binding.password.text.isNullOrEmpty()) {
             requireContext().showShortText("Password cannot be empty!")
+            returnVal = false
         }
+
+        return returnVal
     }
 
 }

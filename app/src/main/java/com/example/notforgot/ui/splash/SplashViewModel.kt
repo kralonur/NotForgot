@@ -10,6 +10,10 @@ class SplashViewModel : ViewModel() {
     val navigateLogin: LiveData<Boolean?>
         get() = _navigateLogin
 
+    private val _navigateMain = MutableLiveData<Boolean?>()
+    val navigateMain: LiveData<Boolean?>
+        get() = _navigateMain
+
 
     fun navigateToLogin() {
         _navigateLogin.postValue(true)
@@ -17,5 +21,13 @@ class SplashViewModel : ViewModel() {
 
     fun navigateToLoginDone() {
         _navigateLogin.postValue(null)
+    }
+
+    fun navigateToMain() {
+        _navigateMain.postValue(true)
+    }
+
+    fun navigateToMainDone() {
+        _navigateMain.postValue(null)
     }
 }

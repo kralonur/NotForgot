@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentSplashBinding
+import com.example.notforgot.util.getToken
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,7 +20,7 @@ class SplashFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentSplashBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -32,7 +33,12 @@ class SplashFragment : Fragment() {
         GlobalScope.launch {
             delay(2000)
 
-            viewModel.navigateToLogin()
+            val token = requireContext().getToken()
+            if (token.isEmpty() || token.isBlank()) {
+                viewModel.navigateToLogin()
+            } else {
+                viewModel.navigateToMain()
+            }
         }
 
         viewModel.navigateLogin.observe(viewLifecycleOwner) {
@@ -42,6 +48,15 @@ class SplashFragment : Fragment() {
                 )
             }
             viewModel.navigateToLoginDone()
+        }
+
+        viewModel.navigateMain.observe(viewLifecycleOwner) {
+            it?.let {
+                if (it) findNavController().navigate(
+                    SplashFragmentDirections.actionSplashFragmentToMainFragment()
+                )
+            }
+            viewModel.navigateToMainDone()
         }
     }
 }
