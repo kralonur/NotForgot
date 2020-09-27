@@ -6,6 +6,7 @@ import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.authentication.register.Register
 import com.example.notforgot.model.authentication.register.RegisterResponse
 import com.example.notforgot.repository.AuthRepository
+import com.example.notforgot.repository.ItemsRepository
 import com.example.notforgot.util.writeToken
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
@@ -20,8 +21,9 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     val navigateMain: LiveData<Boolean?>
         get() = _navigateMain
 
-    private val repo = AuthRepository()
     private val context = getApplication<Application>().applicationContext
+    private val authRepo = AuthRepository(context)
+    private val itemsRepo = ItemsRepository(context)
 
     fun register(
         mail: String,
@@ -29,13 +31,20 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         pass: String,
     ): LiveData<ResultWrapper<RegisterResponse>> {
         val data = Register(mail, name, pass)
-        return repo.register(data).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
+        return authRepo.register(data).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
     }
 
     fun completeRegister(registerResponse: RegisterResponse) {
         context.writeToken(registerResponse.token)
         Timber.i(registerResponse.token)
     }
+
+    fun registerUnsuccessful() {
+        context.writeToken("")
+    }
+
+    fun fetchFromCloud() =
+        itemsRepo.fetchFromCloud().asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
     fun navigateToLogin() {
         _navigateLogin.postValue(true)

@@ -74,6 +74,7 @@ dependencies {
     def okhttp_version = '4.9.0'
     //OkHttp
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
     def lifecycle_version = "2.2.0"
     // ViewModel

@@ -1,19 +1,19 @@
 package com.example.notforgot.api
 
-import com.example.notforgot.BuildConfig
+import android.content.Context
+import com.example.notforgot.util.getToken
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class RequestInterceptor : Interceptor {
+class RequestInterceptor(private val context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
+        val requestBuilder = chain.request().newBuilder()
 
-        val request = chain.request().newBuilder()
-            .addHeader(
-                "Authorization",
-                "Bearer ${BuildConfig.API_KEY}"
-            )
-            .build()
+        requestBuilder.addHeader(
+            "Authorization",
+            "Bearer ${context.getToken()}"
+        )
 
-        return chain.proceed(request)
+        return chain.proceed(requestBuilder.build())
     }
 }

@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentLoginBinding
 import com.example.notforgot.model.ResultWrapper
+import com.example.notforgot.model.authentication.login.LoginResponse
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
@@ -31,17 +32,7 @@ class LoginFragment : Fragment() {
 
         binding.buttonLogin.setOnClickListener {
             if (checkInputs())
-                viewModel.login(binding.mail.text.toString(), binding.password.text.toString())
-                    .observe(viewLifecycleOwner) {
-                        when (it) {
-                            is ResultWrapper.Loading -> Timber.i("Loading")
-                            is ResultWrapper.Error -> Timber.i("Error")
-                            is ResultWrapper.Success -> {
-                                viewModel.completeLogin(it.value)
-                                viewModel.navigateToMain()
-                            }
-                        }
-                    }
+                tryLogin()
         }
 
         binding.buttonRegister.setOnClickListener {
@@ -82,4 +73,34 @@ class LoginFragment : Fragment() {
         return returnVal
     }
 
+    private fun tryLogin() {
+        viewModel.login(binding.mail.text.toString(), binding.password.text.toString())
+            .observe(viewLifecycleOwner) {
+                when (it) {
+                    is ResultWrapper.Loading -> Timber.i("Loading")
+                    is ResultWrapper.Error -> requireContext().showShortText("Login unsuccessful!")
+                    is ResultWrapper.Success -> doLoginSuccess(it.value)
+                }
+            }
+    }
+
+    private fun doLoginSuccess(loginResponse: LoginResponse) {
+        viewModel.completeLogin(loginResponse)
+
+        viewModel.fetchFromCloud().observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Data downloading from cloud")
+                is ResultWrapper.Error -> {
+                    requireContext().showShortText("Fetching data unsuccessful!")
+                    viewModel.loginUnsuccessful()
+                }
+                is ResultWrapper.Success -> {
+                    requireContext().showShortText("Data successfully saved to db!")
+                    viewModel.navigateToMain()
+                }
+            }
+        }
+    }
+
 }
+

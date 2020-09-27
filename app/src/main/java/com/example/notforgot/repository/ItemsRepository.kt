@@ -10,12 +10,13 @@ import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.items.category.CategoryPost
 import com.example.notforgot.model.items.task.TaskPost
+import com.example.notforgot.util.getToken
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
 class ItemsRepository(context: Context) {
-    private val api = NetworkService.itemsService
+    private val api = NetworkService.getItemsService(context)
     private val db = AppDatabase.getInstance(context)
 
     fun fetchFromCloud() = flow {
@@ -41,6 +42,7 @@ class ItemsRepository(context: Context) {
 
         emit(ResultWrapper.Success(Any()))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -51,6 +53,7 @@ class ItemsRepository(context: Context) {
 
         emit(ResultWrapper.Success((Any())))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 

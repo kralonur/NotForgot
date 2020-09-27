@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentRegisterBinding
 import com.example.notforgot.model.ResultWrapper
+import com.example.notforgot.model.authentication.register.RegisterResponse
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
@@ -35,19 +36,7 @@ class RegisterFragment : Fragment() {
 
         binding.buttonRegister.setOnClickListener {
             if (checkInputs())
-                viewModel.register(binding.mail.text.toString(),
-                    binding.name.text.toString(),
-                    binding.password.text.toString())
-                    .observe(viewLifecycleOwner) {
-                        when (it) {
-                            is ResultWrapper.Loading -> Timber.i("Loading")
-                            is ResultWrapper.Error -> Timber.i("Error")
-                            is ResultWrapper.Success -> {
-                                viewModel.completeRegister(it.value)
-                                viewModel.navigateToMain()
-                            }
-                        }
-                    }
+                tryRegister()
         }
 
         viewModel.navigateLogin.observe(viewLifecycleOwner) {
@@ -93,6 +82,37 @@ class RegisterFragment : Fragment() {
         }
 
         return returnVal
+    }
+
+    private fun tryRegister() {
+        viewModel.register(binding.mail.text.toString(),
+            binding.name.text.toString(),
+            binding.password.text.toString())
+            .observe(viewLifecycleOwner) {
+                when (it) {
+                    is ResultWrapper.Loading -> Timber.i("Loading")
+                    is ResultWrapper.Error -> requireContext().showShortText("Register unsuccessful!")
+                    is ResultWrapper.Success -> doRegisterSuccess(it.value)
+                }
+            }
+    }
+
+    private fun doRegisterSuccess(registerResponse: RegisterResponse) {
+        viewModel.completeRegister(registerResponse)
+
+        viewModel.fetchFromCloud().observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Data downloading from cloud")
+                is ResultWrapper.Error -> {
+                    requireContext().showShortText("Fetching data unsuccessful!")
+                    viewModel.registerUnsuccessful()
+                }
+                is ResultWrapper.Success -> {
+                    requireContext().showShortText("Data successfully saved to db!")
+                    viewModel.navigateToMain()
+                }
+            }
+        }
     }
 
 }
