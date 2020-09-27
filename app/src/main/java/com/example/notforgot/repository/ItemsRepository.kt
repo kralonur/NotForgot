@@ -9,6 +9,7 @@ import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.items.category.CategoryPost
+import com.example.notforgot.model.items.task.Task
 import com.example.notforgot.model.items.task.TaskPost
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow

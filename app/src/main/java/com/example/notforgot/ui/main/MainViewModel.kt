@@ -21,6 +21,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repo.getTaskDomainList().catch { Timber.e(it) }
             .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
+    fun uploadToCloud() =
+        repo.uploadToCloud().asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
+
     fun navigateToDetail(task: DbTask) {
         _navigateDetail.postValue(task)
     }

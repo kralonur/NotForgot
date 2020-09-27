@@ -14,7 +14,7 @@ import timber.log.Timber
 
 private fun getLoggingInterceptor(): HttpLoggingInterceptor {
     return HttpLoggingInterceptor()
-        .setLevel(HttpLoggingInterceptor.Level.BASIC)
+        .setLevel(HttpLoggingInterceptor.Level.BODY)
 }
 
 private fun getHTTPClient(context: Context): OkHttpClient {
