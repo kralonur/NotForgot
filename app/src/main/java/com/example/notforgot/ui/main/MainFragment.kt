@@ -9,6 +9,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.notforgot.R
 import com.example.notforgot.databinding.FragmentMainBinding
@@ -18,6 +20,7 @@ import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.recview.TaskAdapter
 import com.example.notforgot.recview.TaskClickListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -43,6 +46,35 @@ class MainFragment : Fragment(), TaskClickListener {
         val adapter = TaskAdapter(this)
         binding.recView.adapter = adapter
 
+
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val deletedItem = adapter.currentList[viewHolder.adapterPosition]
+                Timber.i(deletedItem.toString())
+
+                val snackbar = Snackbar.make(view, "Undo delete?", Snackbar.LENGTH_LONG)
+                    .setAction("Undo") {
+                        adapter.notifyDataSetChanged()
+                    }
+
+                snackbar.addCallback(object : Snackbar.Callback() {
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+                        if (event != DISMISS_EVENT_ACTION)
+                            viewModel.deleteTask(deletedItem.task).observe(viewLifecycleOwner) {
+                                when (it) {
+                                    is ResultWrapper.Success -> Timber.i("${deletedItem.task.title} deleted")
+                                }
+                            }
+                    }
+                })
+
+                snackbar.show()
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(binding.recView)
+
         viewModel.getTaskList().observe(viewLifecycleOwner) {
             Timber.i(it.toString())
             adapter.submitList(it)
@@ -64,7 +96,7 @@ class MainFragment : Fragment(), TaskClickListener {
                         Timber.i("Uploading")
                         dialog.setMessage("Uploading")
                         lottieBinding.text.text = "Uploading"
-                        setLoadingAnimation()
+                        setLoadingAnimation(lottieBinding.animationView)
                     }
                     is ResultWrapper.Error -> {
                         Timber.e("Upload unsuccessful!")
@@ -131,11 +163,17 @@ class MainFragment : Fragment(), TaskClickListener {
         viewModel.navigateToDetail(task_data)
     }
 
+    override fun onChecked(task_data: DbTask) {
+        viewModel.changeDone(task_data).observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Success -> Timber.i("${task_data.title} done changed")
+            }
+        }
+    }
+
     private fun lottieDialog(lottieBinding: LayoutLottieBinding): AlertDialog {
-        val dialog = MaterialAlertDialogBuilder(requireContext())
+        return MaterialAlertDialogBuilder(requireContext())
             .setView(lottieBinding.root)
             .show()
-
-        return dialog
     }
 }

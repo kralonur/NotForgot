@@ -9,7 +9,6 @@ import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.items.category.CategoryPost
-import com.example.notforgot.model.items.task.Task
 import com.example.notforgot.model.items.task.TaskPost
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -155,7 +154,7 @@ class ItemsRepository(context: Context) {
             when (it.type) {
                 "INSERT" -> cloudPostTask(task)
                 "UPDATE" -> cloudPatchTask(task)
-                "DELETE" -> cloudDeleteTask(task)
+                "DELETE" -> cloudDeleteTask(it.model_id)
             }
             db.logDao().delete(it)
         }
@@ -216,10 +215,7 @@ class ItemsRepository(context: Context) {
         ))
     }
 
-    private suspend fun cloudDeleteTask(dbTask: DbTask) {
-        api.deleteTask(dbTask.id)
-        db.taskDao().delete(dbTask)
-    }
+    private suspend fun cloudDeleteTask(id: Int) = api.deleteTask(id)
 
     //LOGS
 
