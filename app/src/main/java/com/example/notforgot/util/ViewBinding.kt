@@ -4,7 +4,7 @@ import android.graphics.Color
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
 import com.example.notforgot.R
-import com.example.notforgot.model.items.priority.Priority
+import com.example.notforgot.model.db.items.DbPriority
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 
@@ -31,7 +31,7 @@ fun MaterialTextView.bindDeadline(epoch: Long?) {
 }
 
 @BindingAdapter("bindPriority")
-fun MaterialButton.bindPriority(priority: Priority?) {
+fun MaterialButton.bindPriority(priority: DbPriority?) {
     priority?.let {
         this.text = priority.name
         this.setBackgroundColor(Color.parseColor(priority.color))

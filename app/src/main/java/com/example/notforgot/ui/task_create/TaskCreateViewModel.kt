@@ -1,85 +1,51 @@
 package com.example.notforgot.ui.task_create
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.notforgot.api.NetworkService
-import com.example.notforgot.model.items.category.Category
-import com.example.notforgot.model.items.category.CategoryPost
-import com.example.notforgot.model.items.priority.Priority
-import com.example.notforgot.model.items.task.TaskPost
+import com.example.notforgot.model.ResultWrapper
+import com.example.notforgot.model.db.items.DbCategory
+import com.example.notforgot.model.db.items.DbTask
+import com.example.notforgot.repository.ItemsRepository
+import com.example.notforgot.util.SharedPref
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import retrofit2.HttpException
+import kotlinx.coroutines.flow.catch
 import timber.log.Timber
 
-class TaskCreateViewModel : ViewModel() {
-    private val api = NetworkService.itemsService
+class TaskCreateViewModel(application: Application) : AndroidViewModel(application) {
+    private val context = getApplication<Application>().applicationContext
+    private val repo = ItemsRepository(context)
 
-    private val _categoryList = MutableLiveData<List<Category>>()
-    val categoryList: LiveData<List<Category>>
-        get() = _categoryList
+    fun getCategoryList() = repo.getCategoryList().catch { Timber.e(it) }
+        .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
-    private val _priorityList = MutableLiveData<List<Priority>>()
-    val priorityList: LiveData<List<Priority>>
-        get() = _priorityList
+    fun getPriorityList() = repo.getPriorityList().catch { Timber.e(it) }
+        .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = api.getCategories()
-                _categoryList.postValue(response)
-                Timber.i(response.toString())
-            } catch (e: Throwable) {
-                when (e) {
-                    is HttpException -> Timber.e(e.code().toString())
-                    else -> Timber.e(e)
-                }
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = api.getPriorities()
-                _priorityList.postValue(response)
-                Timber.i(response.toString())
-            } catch (e: Throwable) {
-                when (e) {
-                    is HttpException -> Timber.e(e.code().toString())
-                    else -> Timber.e(e)
-                }
-            }
-        }
+    fun postTask(
+        title: String,
+        description: String,
+        deadline: Long,
+        categoryId: Int,
+        priorityId: Int,
+    ): LiveData<ResultWrapper<Long>> {
+        val task = DbTask(SharedPref.getTaskId(context),
+            title,
+            description,
+            0,
+            0,
+            deadline,
+            categoryId,
+            priorityId)
+        return repo.addTask(task).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
     }
 
-    fun postTask(task: TaskPost) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = api.postTask(task)
-                Timber.i(response.toString())
-            } catch (e: Throwable) {
-                Timber.e(e)
-                when (e) {
-                    is HttpException -> Timber.e(e.code().toString())
-                    else -> Timber.e(e)
-                }
-            }
-        }
+    fun postCategory(name: String): LiveData<ResultWrapper<Long>> {
+        val category = DbCategory(SharedPref.getCategoryId(context), name)
+        return repo.addCategory(category)
+            .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
     }
 
-    fun postCategory(category: CategoryPost) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = api.postCategory(category)
-                Timber.i(response.toString())
-            } catch (e: Throwable) {
-                Timber.e(e)
-                when (e) {
-                    is HttpException -> Timber.e(e.code().toString())
-                    else -> Timber.e(e)
-                }
-            }
-        }
-    }
 }

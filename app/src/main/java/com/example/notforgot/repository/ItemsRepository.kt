@@ -101,6 +101,8 @@ class ItemsRepository(context: Context) {
         emit(ResultWrapper.Error)
     }
 
+    fun getTaskDomain(id: Int) = db.taskDao().getTaskDomainById(id)
+
     fun getCategory(id: Int) = flow {
         emit(ResultWrapper.Loading)
         val returnVal = db.categoryDao().getCategoryById(id)
@@ -117,29 +119,13 @@ class ItemsRepository(context: Context) {
         emit(ResultWrapper.Error)
     }
 
-    fun getTaskList() = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.taskDao().getAll()
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        emit(ResultWrapper.Error)
-    }
+    fun getTaskList() = db.taskDao().getAll()
 
-    fun getCategoryList() = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.categoryDao().getAll()
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        emit(ResultWrapper.Error)
-    }
+    fun getTaskDomainList() = db.taskDao().getAllDomain()
 
-    fun getPriorityList() = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.priorityDao().getAll()
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        emit(ResultWrapper.Error)
-    }
+    fun getCategoryList() = db.categoryDao().getAll()
+
+    fun getPriorityList() = db.priorityDao().getAll()
 
     //CLOUD
 

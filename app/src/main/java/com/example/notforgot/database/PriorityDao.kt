@@ -4,12 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.notforgot.model.db.items.DbPriority
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PriorityDao {
 
     @Query("SELECT * FROM priority")
-    suspend fun getAll(): List<DbPriority>
+    fun getAll(): Flow<List<DbPriority>>
 
     @Query("SELECT * FROM priority WHERE id = (:priorityId)")
     suspend fun getPriorityById(priorityId: Int): DbPriority

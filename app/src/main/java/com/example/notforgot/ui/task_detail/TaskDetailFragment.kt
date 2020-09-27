@@ -18,7 +18,7 @@ class TaskDetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         binding = LayoutDetailCreateBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -35,7 +35,7 @@ class TaskDetailFragment : Fragment() {
 
         viewModel.getTask(taskId).observe(viewLifecycleOwner) {
             it?.let {
-                binding.title.text = it.title
+                binding.title.text = it.task.title
                 binding.layoutDetail.task = it
             }
         }

@@ -1,7 +1,7 @@
 package com.example.notforgot.recview
 
-import com.example.notforgot.model.items.task.Task
+import com.example.notforgot.model.db.items.DbTask
 
 interface TaskClickListener {
-    fun onClick(task_data: Task)
+    fun onClick(task_data: DbTask)
 }

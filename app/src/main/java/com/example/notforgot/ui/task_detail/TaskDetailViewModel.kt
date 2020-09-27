@@ -1,26 +1,18 @@
 package com.example.notforgot.ui.task_detail
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
-import com.example.notforgot.api.NetworkService
-import com.example.notforgot.model.items.task.Task
-import retrofit2.HttpException
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.notforgot.repository.ItemsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
 import timber.log.Timber
 
-class TaskDetailViewModel : ViewModel() {
-    private val api = NetworkService.itemsService
+class TaskDetailViewModel(application: Application) : AndroidViewModel(application) {
+    private val context = getApplication<Application>().applicationContext
+    private val repo = ItemsRepository(context)
 
-    fun getTask(task_id: Int): LiveData<Task> {
-        return liveData {
-            try {
-                emit(api.getTasks().first { it.id == task_id })
-            } catch (e: Throwable) {
-                when (e) {
-                    is HttpException -> Timber.e(e.code().toString())
-                    else -> Timber.e(e)
-                }
-            }
-        }
-    }
+    fun getTask(task_id: Int) = repo.getTaskDomain(task_id).catch { Timber.e(it) }.asLiveData(
+        Dispatchers.IO + viewModelScope.coroutineContext)
 }

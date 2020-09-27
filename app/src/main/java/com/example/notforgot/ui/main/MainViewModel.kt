@@ -1,44 +1,27 @@
 package com.example.notforgot.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.notforgot.api.NetworkService
-import com.example.notforgot.model.items.task.Task
+import android.app.Application
+import androidx.lifecycle.*
+import com.example.notforgot.model.db.items.DbTask
+import com.example.notforgot.repository.ItemsRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import retrofit2.HttpException
+import kotlinx.coroutines.flow.catch
 import timber.log.Timber
 
-class MainViewModel : ViewModel() {
-    private val api = NetworkService.itemsService
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _taskList = MutableLiveData<List<Task>>()
-    val taskList: LiveData<List<Task>>
-        get() = _taskList
-
-    private val _navigateDetail = MutableLiveData<Task?>()
-    val navigateDetail: LiveData<Task?>
+    private val _navigateDetail = MutableLiveData<DbTask?>()
+    val navigateDetail: LiveData<DbTask?>
         get() = _navigateDetail
 
+    private val context = getApplication<Application>().applicationContext
+    private val repo = ItemsRepository(context)
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = api.getTasks()
-                _taskList.postValue(response)
-                Timber.i(response.toString())
-            } catch (e: Throwable) {
-                when (e) {
-                    is HttpException -> Timber.e(e.code().toString())
-                    else -> Timber.e(e)
-                }
-            }
-        }
-    }
+    fun getTaskList() =
+        repo.getTaskDomainList().catch { Timber.e(it) }
+            .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
-    fun navigateToDetail(task: Task) {
+    fun navigateToDetail(task: DbTask) {
         _navigateDetail.postValue(task)
     }
 

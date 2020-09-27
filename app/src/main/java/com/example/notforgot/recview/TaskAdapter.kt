@@ -5,18 +5,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.example.notforgot.databinding.ItemTaskBinding
-import com.example.notforgot.model.items.task.Task
+import com.example.notforgot.model.TaskDomain
 
 class TaskAdapter(private val clickListener: TaskClickListener) :
-    ListAdapter<Task, TaskViewHolder>(ListItemCallback()) {
+    ListAdapter<TaskDomain, TaskViewHolder>(ListItemCallback()) {
 
-    private class ListItemCallback : DiffUtil.ItemCallback<Task>() {
-        override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
-            return oldItem.id == newItem.id
+    private class ListItemCallback : DiffUtil.ItemCallback<TaskDomain>() {
+        override fun areItemsTheSame(oldItem: TaskDomain, newItem: TaskDomain): Boolean {
+            return oldItem.task.id == newItem.task.id
         }
 
-        override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
-            return oldItem == newItem
+        override fun areContentsTheSame(oldItem: TaskDomain, newItem: TaskDomain): Boolean {
+            return oldItem.task == newItem.task
         }
     }
 

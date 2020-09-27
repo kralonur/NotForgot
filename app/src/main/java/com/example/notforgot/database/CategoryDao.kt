@@ -5,17 +5,18 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.notforgot.model.db.items.DbCategory
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CategoryDao {
     @Query("SELECT * FROM category")
-    suspend fun getAll(): List<DbCategory>
+    fun getAll(): Flow<List<DbCategory>>
 
     @Query("SELECT * FROM category WHERE id = (:categoryId)")
     suspend fun getCategoryById(categoryId: Int): DbCategory
 
     @Insert
-    suspend fun insertCategory(category: DbCategory) : Long
+    suspend fun insertCategory(category: DbCategory): Long
 
     @Insert
     suspend fun insertAll(categories: List<DbCategory>)

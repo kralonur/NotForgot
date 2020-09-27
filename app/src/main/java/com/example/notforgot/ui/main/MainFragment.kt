@@ -8,9 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentMainBinding
-import com.example.notforgot.model.items.task.Task
+import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.recview.TaskAdapter
 import com.example.notforgot.recview.TaskClickListener
+import timber.log.Timber
 
 class MainFragment : Fragment(), TaskClickListener {
     private val viewModel by viewModels<MainViewModel>()
@@ -19,7 +20,7 @@ class MainFragment : Fragment(), TaskClickListener {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentMainBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -32,7 +33,8 @@ class MainFragment : Fragment(), TaskClickListener {
         val adapter = TaskAdapter(this)
         binding.recView.adapter = adapter
 
-        viewModel.taskList.observe(viewLifecycleOwner) {
+        viewModel.getTaskList().observe(viewLifecycleOwner) {
+            Timber.i(it.toString())
             adapter.submitList(it)
         }
 
@@ -52,7 +54,7 @@ class MainFragment : Fragment(), TaskClickListener {
         }
     }
 
-    override fun onClick(task_data: Task) {
+    override fun onClick(task_data: DbTask) {
         viewModel.navigateToDetail(task_data)
     }
 }
