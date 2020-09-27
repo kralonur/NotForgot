@@ -10,7 +10,6 @@ import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.items.category.CategoryPost
 import com.example.notforgot.model.items.task.TaskPost
-import com.example.notforgot.util.getToken
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
@@ -65,6 +64,7 @@ class ItemsRepository(context: Context) {
         logAddCategory(returnVal.toInt())
         emit(ResultWrapper.Success(returnVal))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -75,6 +75,7 @@ class ItemsRepository(context: Context) {
         logAddTask(returnVal.toInt())
         emit(ResultWrapper.Success(returnVal))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -84,6 +85,7 @@ class ItemsRepository(context: Context) {
         logUpdateTask(task.id)
         emit(ResultWrapper.Success(returnVal))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -93,6 +95,7 @@ class ItemsRepository(context: Context) {
         logDeleteTask(task.id)
         emit(ResultWrapper.Success(returnVal))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -101,6 +104,7 @@ class ItemsRepository(context: Context) {
         val returnVal = db.taskDao().getTaskById(id)
         emit(ResultWrapper.Success(returnVal))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -111,6 +115,7 @@ class ItemsRepository(context: Context) {
         val returnVal = db.categoryDao().getCategoryById(id)
         emit(ResultWrapper.Success(returnVal))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -119,6 +124,7 @@ class ItemsRepository(context: Context) {
         val returnVal = db.priorityDao().getPriorityById(id)
         emit(ResultWrapper.Success(returnVal))
     }.catch {
+        Timber.e(it)
         emit(ResultWrapper.Error)
     }
 
@@ -222,26 +228,31 @@ class ItemsRepository(context: Context) {
 
     private suspend fun logUpdateTask(id: Int) {
         val taskLog = db.logDao().getTaskLogById(id)
-        when (taskLog.type) {
-            "INSERT", "UPDATE", "DELETE" -> {
+        if (taskLog != null) {
+            when (taskLog.type) {
+                "INSERT", "UPDATE", "DELETE" -> {
+                }
             }
-            else -> db.logDao().insert(DbLog(0, "UPDATE", "TASK", id))
+        } else {
+            db.logDao().insert(DbLog(0, "UPDATE", "TASK", id))
         }
+
     }
 
     private suspend fun logDeleteTask(id: Int) {
         val taskLog = db.logDao().getTaskLogById(id)
-        when (taskLog.type) {
-            "INSERT" -> db.logDao().delete(taskLog)
-            "UPDATE" -> {
-                db.logDao().delete(taskLog)
-                db.logDao().insert(DbLog(0, "DELETE", "TASK", id))
+        if (taskLog != null) {
+            when (taskLog.type) {
+                "INSERT" -> db.logDao().delete(taskLog)
+                "UPDATE" -> {
+                    db.logDao().delete(taskLog)
+                    db.logDao().insert(DbLog(0, "DELETE", "TASK", id))
+                }
+                "DELETE" -> {
+                }
             }
-            "DELETE" -> {
-            }
-            else -> {
-                db.logDao().insert(DbLog(0, "DELETE", "TASK", id))
-            }
+        } else {
+            db.logDao().insert(DbLog(0, "DELETE", "TASK", id))
         }
     }
 

@@ -24,6 +24,9 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
     fun getPriorityList() = repo.getPriorityList().catch { Timber.e(it) }
         .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
+    fun getTask(id: Int) =
+        repo.getTaskDomain(id).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
+
     fun postTask(
         title: String,
         description: String,
@@ -40,6 +43,12 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
             categoryId,
             priorityId)
         return repo.addTask(task).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
+    }
+
+    fun updateTask(
+        task: DbTask,
+    ): LiveData<ResultWrapper<Unit>> {
+        return repo.updateTask(task).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
     }
 
     fun postCategory(name: String): LiveData<ResultWrapper<Long>> {

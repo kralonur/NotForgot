@@ -11,9 +11,9 @@ data class TaskDomain(
     @Relation(
         parentColumn = "priority_id",
         entityColumn = "id"
-    ) val priority: DbPriority?,
+    ) val priority: DbPriority,
     @Relation(
         parentColumn = "category_id",
         entityColumn = "id"
-    ) val category: DbCategory?
+    ) val category: DbCategory
 )

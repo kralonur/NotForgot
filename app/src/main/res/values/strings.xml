@@ -23,5 +23,7 @@
     <string name="not_completed">Not completed</string>
     <string name="until">Until %s</string>
     <string name="edit">Edit</string>
+    <string name="edit_task">Edit Task</string>
+
 
 </resources>

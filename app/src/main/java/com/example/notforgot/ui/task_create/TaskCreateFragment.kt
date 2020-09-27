@@ -9,12 +9,16 @@ import android.widget.ArrayAdapter
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.example.notforgot.R
 import com.example.notforgot.databinding.LayoutCreateCategoryBinding
 import com.example.notforgot.databinding.LayoutDetailCreateBinding
 import com.example.notforgot.model.ResultWrapper
+import com.example.notforgot.model.TaskDomain
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
+import com.example.notforgot.model.db.items.DbTask
+import com.example.notforgot.util.fromEpochToMs
 import com.example.notforgot.util.fromMsToEpoch
 import com.example.notforgot.util.showShortText
 import com.example.notforgot.util.toDateString
@@ -25,6 +29,10 @@ import timber.log.Timber
 class TaskCreateFragment : Fragment() {
     private val viewModel by viewModels<TaskCreateViewModel>()
     private lateinit var binding: LayoutDetailCreateBinding
+    private val args by navArgs<TaskCreateFragmentArgs>()
+
+    private lateinit var taskToUpdate: TaskDomain
+    private var taskId: Int = 0
 
     private var selectedCategory: DbCategory? = null
     private var selectedPriority: DbPriority? = null
@@ -44,8 +52,25 @@ class TaskCreateFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.title.text = getString(R.string.create_task)
-        binding.materialButton.text = getString(R.string.create)
+        taskId = args.taskId
+
+
+        if (taskId == 0) {
+            binding.title.text = getString(R.string.create_task)
+            binding.materialButton.text = getString(R.string.create)
+        } else {
+            binding.title.text = getString(R.string.edit_task)
+            binding.materialButton.text = getString(R.string.edit)
+            viewModel.getTask(taskId).observe(viewLifecycleOwner) {
+                it?.let {
+                    updateLayoutWithTask(it)
+                    taskToUpdate = it
+                    selectedCategory = it.category
+                    selectedPriority = it.priority
+                    deadline = it.task.deadline
+                }
+            }
+        }
 
         binding.layoutCreate.description.doAfterTextChanged {
             if (binding.layoutCreate.filledTextField.error != null)
@@ -104,6 +129,17 @@ class TaskCreateFragment : Fragment() {
         binding.groupCreate.visibility = View.VISIBLE
     }
 
+    private fun updateLayoutWithTask(task: TaskDomain) {
+        binding.layoutCreate.let {
+            it.title.setText(task.task.title)
+            it.description.setText(task.task.description)
+            it.endDate.setText(task.task.deadline.fromEpochToMs()
+                .toDateString())
+            it.textInputLayout.hint = "Current Category: ${task.category.name}"
+            it.textInputLayout2.hint = "Current Priority: ${task.priority.name}"
+        }
+    }
+
     private fun checkInput(): Boolean {
         var result = true
 
@@ -142,7 +178,10 @@ class TaskCreateFragment : Fragment() {
                 // Respond to neutral button press
             }
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                createTask()
+                if (taskId == 0)
+                    createTask()
+                else
+                    updateTask()
             }
             .show()
     }
@@ -159,6 +198,28 @@ class TaskCreateFragment : Fragment() {
                 is ResultWrapper.Success -> Timber.i("Task created with id: ${it.value}")
             }
         }
+    }
+
+    private fun updateTask() {
+        val task = DbTask(
+            taskToUpdate.task.id,
+            binding.layoutCreate.title.text.toString(),
+            binding.layoutCreate.description.text.toString(),
+            taskToUpdate.task.done,
+            taskToUpdate.task.created,
+            requireNotNull(this@TaskCreateFragment.deadline),
+            requireNotNull(selectedCategory).id,
+            requireNotNull(selectedPriority).id
+        )
+
+        viewModel.updateTask(task).observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Editing task...")
+                is ResultWrapper.Error -> Timber.e("Error while editing task")
+                is ResultWrapper.Success -> Timber.i("Task edited successfully")
+            }
+        }
+
     }
 
     private fun showDatePicker() {

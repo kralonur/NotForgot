@@ -21,6 +21,7 @@ interface TaskDao {
     @Query("SELECT * FROM task WHERE id = (:id)")
     suspend fun getTaskById(id: Int): DbTask
 
+    @Transaction
     @Query("SELECT * FROM task WHERE id = (:id)")
     fun getTaskDomainById(id: Int): Flow<TaskDomain>
 

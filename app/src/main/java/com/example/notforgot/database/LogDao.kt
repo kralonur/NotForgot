@@ -22,11 +22,11 @@ interface LogDao {
 
 
     @Query("SELECT * FROM log WHERE model_id = (:modelId) AND model = 'CATEGORY'")
-    suspend fun getCategoryLogById(modelId: Int): DbLog
+    suspend fun getCategoryLogById(modelId: Int): DbLog?
 
 
     @Query("SELECT * FROM log WHERE model_id = (:modelId) AND model = 'TASK'")
-    suspend fun getTaskLogById(modelId: Int): DbLog
+    suspend fun getTaskLogById(modelId: Int): DbLog?
 
     @Delete
     suspend fun delete(log: DbLog)

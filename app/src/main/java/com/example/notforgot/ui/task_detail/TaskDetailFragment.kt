@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.notforgot.R
 import com.example.notforgot.databinding.LayoutDetailCreateBinding
@@ -29,7 +30,7 @@ class TaskDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val taskId = args.taskId
+        var taskId = args.taskId
 
         binding.materialButton.text = getString(R.string.edit)
 
@@ -37,7 +38,21 @@ class TaskDetailFragment : Fragment() {
             it?.let {
                 binding.title.text = it.task.title
                 binding.layoutDetail.task = it
+                taskId = it.task.id
             }
+        }
+
+        binding.materialButton.setOnClickListener {
+            viewModel.navigateToEdit(taskId)
+        }
+
+        viewModel.navigateEdit.observe(viewLifecycleOwner) {
+            it?.let {
+                findNavController().navigate(
+                    TaskDetailFragmentDirections.actionTaskDetailFragmentToTaskCreateFragment(it)
+                )
+            }
+            viewModel.navigateToEditDone()
         }
     }
 
