@@ -49,7 +49,7 @@ class MainFragment : Fragment(), TaskClickListener {
 
         val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val deletedItem = adapter.currentList[viewHolder.adapterPosition]
+                val deletedItem = adapter.currentList[viewHolder.adapterPosition].task!!
                 Timber.i(deletedItem.toString())
 
                 val snackbar = Snackbar.make(view, "Undo delete?", Snackbar.LENGTH_LONG)
@@ -75,7 +75,7 @@ class MainFragment : Fragment(), TaskClickListener {
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(binding.recView)
 
-        viewModel.getTaskList().observe(viewLifecycleOwner) {
+        viewModel.getRecviewItemList().observe(viewLifecycleOwner) {
             Timber.i(it.toString())
             if (it.isEmpty()) {
                 binding.group.visibility = View.VISIBLE

@@ -18,8 +18,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val context = getApplication<Application>().applicationContext
     private val repo = ItemsRepository(context)
 
-    fun getTaskList() =
-        repo.getTaskDomainList().catch { Timber.e(it) }
+    fun getRecviewItemList() =
+        repo.getRecviewItemList().catch { Timber.e(it) }
             .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
     fun uploadToCloud() =

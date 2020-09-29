@@ -3,6 +3,7 @@ package com.example.notforgot.repository
 import android.content.Context
 import com.example.notforgot.api.NetworkService
 import com.example.notforgot.database.AppDatabase
+import com.example.notforgot.model.RecviewItem
 import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.DbLog
 import com.example.notforgot.model.db.items.DbCategory
@@ -12,6 +13,7 @@ import com.example.notforgot.model.items.category.CategoryPost
 import com.example.notforgot.model.items.task.TaskPost
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 class ItemsRepository(context: Context) {
@@ -131,6 +133,17 @@ class ItemsRepository(context: Context) {
     fun getTaskList() = db.taskDao().getAll()
 
     fun getTaskDomainList() = db.taskDao().getAllDomain()
+
+    fun getRecviewItemList() = db.taskDao().getAllDomain().map { it.groupBy { it.category } }.map { map ->
+        val list = ArrayList<RecviewItem>()
+        map.keys.forEach { k ->
+            list.add(RecviewItem(false, category = k))
+            map[k]?.forEach { v ->
+                list.add(RecviewItem(true, task = v))
+            }
+        }
+        return@map list as List<RecviewItem>
+    }
 
     fun getCategoryList() = db.categoryDao().getAll()
 

@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.notforgot.recview.TaskHeaderViewHolder
 
 
 abstract class SwipeToDeleteCallback(context: Context) :
@@ -83,6 +84,15 @@ abstract class SwipeToDeleteCallback(context: Context) :
         deleteIcon?.draw(c)
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+    }
+
+    override fun getMovementFlags(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+    ): Int {
+        if (viewHolder is TaskHeaderViewHolder)
+            return 0
+        return super.getMovementFlags(recyclerView, viewHolder)
     }
 
     private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {
