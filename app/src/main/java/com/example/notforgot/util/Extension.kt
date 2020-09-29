@@ -30,3 +30,9 @@ fun Long.fromMsToEpoch(): Long {
 fun Long.fromEpochToMs(): Long {
     return this.times(1000)
 }
+
+fun String.isMail(): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(
+        this
+    ).matches()
+}

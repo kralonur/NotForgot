@@ -6,36 +6,47 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/title"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textFieldTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:hint="@string/title"
-            android:inputType="text"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/filledTextField"
+            android:id="@+id/textFieldDescription"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            android:clipToPadding="true"
             android:hint="@string/description"
             app:counterEnabled="true"
             app:counterMaxLength="120"
             app:errorEnabled="true"
-            app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
+            app:layout_constraintBottom_toTopOf="@+id/textFieldSelectCategory"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title"
+            app:layout_constraintTop_toBottomOf="@+id/textFieldTitle"
             app:layout_constraintVertical_bias="0.0">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -47,7 +58,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout"
+            android:id="@+id/textFieldSelectCategory"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -55,7 +66,9 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             android:hint="@string/category"
-            app:layout_constraintBottom_toTopOf="@+id/textInputLayout2"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/textFieldSelectPriority"
             app:layout_constraintEnd_toStartOf="@+id/newCategory"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -74,12 +87,12 @@
             android:backgroundTint="#00FFFFFF"
             android:src="@drawable/add"
             android:tint="@color/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
+            app:layout_constraintBottom_toBottomOf="@+id/textFieldSelectCategory"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textInputLayout" />
+            app:layout_constraintTop_toTopOf="@+id/textFieldSelectCategory" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout2"
+            android:id="@+id/textFieldSelectPriority"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -87,7 +100,9 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:hint="@string/priority"
-            app:layout_constraintBottom_toTopOf="@+id/endDate"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/textFieldEndDate"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -98,20 +113,28 @@
                 android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/endDate"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textFieldEndDate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:focusable="false"
             android:hint="@string/do_until"
-            android:inputType="none"
+            app:boxBackgroundColor="@android:color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/endDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

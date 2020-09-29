@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentRegisterBinding
 import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.authentication.register.RegisterResponse
+import com.example.notforgot.util.isMail
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
@@ -29,6 +31,8 @@ class RegisterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        invalidateInput()
 
         binding.buttonLogin.setOnClickListener {
             viewModel.navigateToLogin()
@@ -62,26 +66,51 @@ class RegisterFragment : Fragment() {
         var returnVal = true
 
         if (binding.name.text.isNullOrEmpty()) {
-            requireContext().showShortText("Name cannot be empty!")
+            binding.textFieldName.error = "Name cannot be empty!"
             returnVal = false
         }
 
         if (binding.mail.text.isNullOrEmpty()) {
-            requireContext().showShortText("Mail cannot be empty!")
+            binding.textFieldMail.error = "Mail cannot be empty!"
+            returnVal = false
+        } else if (!binding.mail.text.toString().isMail()) {
+            binding.textFieldMail.error = "Mail is not valid!"
             returnVal = false
         }
 
         if (binding.password.text.isNullOrEmpty()) {
-            requireContext().showShortText("Password cannot be empty!")
+            binding.textFieldPass.error = "Password cannot be empty!"
             returnVal = false
         } else {
             if (binding.passwordRepeat.text.toString() != binding.password.text.toString()) {
-                requireContext().showShortText("Passwords should be same!")
+                binding.textFieldPassRepeat.error = "Passwords should be same!"
                 returnVal = false
             }
         }
 
         return returnVal
+    }
+
+    private fun invalidateInput() {
+        binding.name.doAfterTextChanged {
+            if (binding.textFieldName.error != null)
+                binding.textFieldName.error = null
+        }
+
+        binding.mail.doAfterTextChanged {
+            if (binding.textFieldMail.error != null)
+                binding.textFieldMail.error = null
+        }
+
+        binding.password.doAfterTextChanged {
+            if (binding.textFieldPass.error != null)
+                binding.textFieldPass.error = null
+        }
+
+        binding.passwordRepeat.doAfterTextChanged {
+            if (binding.textFieldPassRepeat.error != null)
+                binding.textFieldPassRepeat.error = null
+        }
     }
 
     private fun tryRegister() {

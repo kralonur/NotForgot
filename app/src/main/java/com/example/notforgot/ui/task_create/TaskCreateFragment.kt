@@ -20,7 +20,6 @@ import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.util.fromEpochToMs
 import com.example.notforgot.util.fromMsToEpoch
-import com.example.notforgot.util.showShortText
 import com.example.notforgot.util.toDateString
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -52,8 +51,9 @@ class TaskCreateFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        taskId = args.taskId
+        invalidateInput()
 
+        taskId = args.taskId
 
         if (taskId == 0) {
             binding.title.text = getString(R.string.create_task)
@@ -72,11 +72,6 @@ class TaskCreateFragment : Fragment() {
             }
         }
 
-        binding.layoutCreate.description.doAfterTextChanged {
-            if (binding.layoutCreate.filledTextField.error != null)
-                binding.layoutCreate.filledTextField.error = null
-        }
-
         val catList = ArrayList<DbCategory>()
         viewModel.getCategoryList().observe(viewLifecycleOwner) {
             it?.let {
@@ -90,8 +85,8 @@ class TaskCreateFragment : Fragment() {
 
         binding.layoutCreate.category.setOnItemClickListener { _, _, position, _ ->
             selectedCategory = catList[position]
-            if (binding.layoutCreate.textInputLayout.error != null)
-                binding.layoutCreate.textInputLayout.error = null
+            if (binding.layoutCreate.textFieldSelectCategory.error != null)
+                binding.layoutCreate.textFieldSelectCategory.error = null
         }
 
         val prList = ArrayList<DbPriority>()
@@ -107,8 +102,8 @@ class TaskCreateFragment : Fragment() {
 
         binding.layoutCreate.priority.setOnItemClickListener { _, _, position, _ ->
             selectedPriority = prList[position]
-            if (binding.layoutCreate.textInputLayout2.error != null)
-                binding.layoutCreate.textInputLayout2.error = null
+            if (binding.layoutCreate.textFieldSelectPriority.error != null)
+                binding.layoutCreate.textFieldSelectPriority.error = null
         }
 
 
@@ -135,8 +130,8 @@ class TaskCreateFragment : Fragment() {
             it.description.setText(task.task.description)
             it.endDate.setText(task.task.deadline.fromEpochToMs()
                 .toDateString())
-            it.textInputLayout.hint = "Current Category: ${task.category.name}"
-            it.textInputLayout2.hint = "Current Priority: ${task.priority.name}"
+            it.textFieldSelectCategory.hint = "Current Category: ${task.category.name}"
+            it.textFieldSelectPriority.hint = "Current Priority: ${task.priority.name}"
         }
     }
 
@@ -144,31 +139,46 @@ class TaskCreateFragment : Fragment() {
         var result = true
 
         if (binding.layoutCreate.title.text.isNullOrEmpty()) {
-            requireContext().showShortText("Title cannot be empty!")
+            binding.layoutCreate.textFieldTitle.error = "Title cannot be empty!"
             result = false
         }
 
         if (binding.layoutCreate.description.text.isNullOrEmpty()) {
-            binding.layoutCreate.filledTextField.error = "Description cannot be empty!"
+            binding.layoutCreate.textFieldDescription.error = "Description cannot be empty!"
             result = false
         }
 
         if (selectedCategory == null) {
-            binding.layoutCreate.textInputLayout.error = "Category cannot be empty!"
+            binding.layoutCreate.textFieldSelectCategory.error = "Category cannot be empty!"
             result = false
         }
 
         if (selectedPriority == null) {
-            binding.layoutCreate.textInputLayout2.error = "Priority cannot be empty!"
+            binding.layoutCreate.textFieldSelectPriority.error = "Priority cannot be empty!"
             result = false
         }
 
         if (deadline == null) {
-            requireContext().showShortText("End date cannot be empty!")
+            binding.layoutCreate.textFieldEndDate.error = "End date cannot be empty!"
             result = false
         }
 
         return result
+    }
+
+    private fun invalidateInput() {
+        binding.layoutCreate.let {
+            it.title.doAfterTextChanged { _ ->
+                if (it.textFieldTitle.error != null)
+                    it.textFieldTitle.error = null
+            }
+
+            it.description.doAfterTextChanged { _ ->
+                if (it.textFieldDescription.error != null)
+                    it.textFieldDescription.error = null
+            }
+        }
+
     }
 
     private fun showSaveDialog() {
@@ -230,6 +240,9 @@ class TaskCreateFragment : Fragment() {
             (time as Long).let {
                 deadline = it.fromMsToEpoch()
                 binding.layoutCreate.endDate.setText(it.toDateString())
+
+                if (binding.layoutCreate.textFieldEndDate.error != null)
+                    binding.layoutCreate.textFieldEndDate.error = null
             }
         }
     }
@@ -238,8 +251,8 @@ class TaskCreateFragment : Fragment() {
         val categoryBinding = LayoutCreateCategoryBinding.inflate(layoutInflater)
 
         categoryBinding.category.doAfterTextChanged {
-            if (categoryBinding.filledTextField.error != null)
-                categoryBinding.filledTextField.error = null
+            if (categoryBinding.textFieldCategory.error != null)
+                categoryBinding.textFieldCategory.error = null
         }
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
@@ -251,7 +264,7 @@ class TaskCreateFragment : Fragment() {
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             if (categoryBinding.category.text.isNullOrEmpty()) {
-                categoryBinding.filledTextField.error = "Category name cannot be empty!"
+                categoryBinding.textFieldCategory.error = "Category name cannot be empty!"
             } else {
                 createCategory(categoryBinding, dialog)
             }
@@ -265,9 +278,9 @@ class TaskCreateFragment : Fragment() {
         viewModel.postCategory(categoryBinding.category.text.toString())
             .observe(viewLifecycleOwner) {
                 when (it) {
-                    is ResultWrapper.Loading -> categoryBinding.filledTextField.error =
+                    is ResultWrapper.Loading -> categoryBinding.textFieldCategory.error =
                         "Creating category..."
-                    is ResultWrapper.Error -> categoryBinding.filledTextField.error =
+                    is ResultWrapper.Error -> categoryBinding.textFieldCategory.error =
                         "Error while creating category"
                     is ResultWrapper.Success -> {
                         Timber.i("Category created with id: ${it.value}")

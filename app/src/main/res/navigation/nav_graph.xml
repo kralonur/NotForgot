@@ -63,11 +63,11 @@
     <fragment
         android:id="@+id/taskCreateFragment"
         android:name="com.example.notforgot.ui.task_create.TaskCreateFragment"
-        android:label="TaskCreateFragment" >
+        android:label="TaskCreateFragment">
         <argument
             android:name="task_id"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:defaultValue="0"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/taskDetailFragment"

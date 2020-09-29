@@ -77,6 +77,13 @@ class MainFragment : Fragment(), TaskClickListener {
 
         viewModel.getTaskList().observe(viewLifecycleOwner) {
             Timber.i(it.toString())
+            if (it.isEmpty()) {
+                binding.group.visibility = View.VISIBLE
+                binding.recView.visibility = View.GONE
+            } else {
+                binding.group.visibility = View.GONE
+                binding.recView.visibility = View.VISIBLE
+            }
             adapter.submitList(it)
         }
 
