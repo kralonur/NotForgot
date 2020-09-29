@@ -24,6 +24,9 @@ class TaskDetailFragment : Fragment() {
         binding = LayoutDetailCreateBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         setLayout()
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
         return binding.root
     }
 

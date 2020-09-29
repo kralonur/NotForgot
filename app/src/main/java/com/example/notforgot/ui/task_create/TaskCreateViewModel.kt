@@ -1,10 +1,7 @@
 package com.example.notforgot.ui.task_create
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbTask
@@ -17,6 +14,10 @@ import timber.log.Timber
 class TaskCreateViewModel(application: Application) : AndroidViewModel(application) {
     private val context = getApplication<Application>().applicationContext
     private val repo = ItemsRepository(context)
+
+    private val _navigateDetail = MutableLiveData<Int?>()
+    val navigateDetail: LiveData<Int?>
+        get() = _navigateDetail
 
     fun getCategoryList() = repo.getCategoryList().catch { Timber.e(it) }
         .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
@@ -55,6 +56,14 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         val category = DbCategory(SharedPref.getCategoryId(context), name)
         return repo.addCategory(category)
             .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
+    }
+
+    fun navigateToDetail(id: Int) {
+        _navigateDetail.postValue(id)
+    }
+
+    fun navigateToDetailDone() {
+        _navigateDetail.postValue(null)
     }
 
 }

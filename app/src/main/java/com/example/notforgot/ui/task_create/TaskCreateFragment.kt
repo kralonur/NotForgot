@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.notforgot.R
 import com.example.notforgot.databinding.LayoutCreateCategoryBinding
@@ -45,6 +46,9 @@ class TaskCreateFragment : Fragment() {
         binding = LayoutDetailCreateBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         setLayout()
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
         return binding.root
     }
 
@@ -116,6 +120,15 @@ class TaskCreateFragment : Fragment() {
 
         binding.layoutCreate.newCategory.setOnClickListener {
             showCategoryDialog()
+        }
+
+        viewModel.navigateDetail.observe(viewLifecycleOwner) {
+            it?.let {
+                findNavController().navigate(
+                    TaskCreateFragmentDirections.actionTaskCreateFragmentToTaskDetailFragment(it)
+                )
+            }
+            viewModel.navigateToDetailDone()
         }
 
     }
@@ -205,7 +218,10 @@ class TaskCreateFragment : Fragment() {
             when (it) {
                 is ResultWrapper.Loading -> Timber.i("Creating task...")
                 is ResultWrapper.Error -> Timber.e("Error while creating task")
-                is ResultWrapper.Success -> Timber.i("Task created with id: ${it.value}")
+                is ResultWrapper.Success -> {
+                    Timber.i("Task created with id: ${it.value}")
+                    viewModel.navigateToDetail(it.value.toInt())
+                }
             }
         }
     }
@@ -226,7 +242,10 @@ class TaskCreateFragment : Fragment() {
             when (it) {
                 is ResultWrapper.Loading -> Timber.i("Editing task...")
                 is ResultWrapper.Error -> Timber.e("Error while editing task")
-                is ResultWrapper.Success -> Timber.i("Task edited successfully")
+                is ResultWrapper.Success -> {
+                    Timber.i("Task edited successfully")
+                    viewModel.navigateToDetail(taskToUpdate.task.id)
+                }
             }
         }
 

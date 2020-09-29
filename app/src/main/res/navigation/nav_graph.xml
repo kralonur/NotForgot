@@ -68,6 +68,12 @@
             android:name="task_id"
             android:defaultValue="0"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_taskCreateFragment_to_taskDetailFragment"
+            app:destination="@id/taskDetailFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/taskCreateFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/taskDetailFragment"
