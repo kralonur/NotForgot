@@ -4,24 +4,21 @@ import android.content.Context
 import com.example.notforgot.api.NetworkService
 import com.example.notforgot.database.AppDatabase
 import com.example.notforgot.model.RecviewItem
-import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.DbLog
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.items.category.CategoryPost
 import com.example.notforgot.model.items.task.TaskPost
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
-class ItemsRepository(context: Context) {
+class ItemsRepository(context: Context) : BaseRepository() {
     private val api = NetworkService.getItemsService(context)
     private val db = AppDatabase.getInstance(context)
 
-    fun fetchFromCloud() = flow {
-        emit(ResultWrapper.Loading)
+    fun fetchFromCloud() = flowCall {
         val categories = api.getCategories().map { DbCategory(it.id, it.name) }
         val priorities = api.getPriorities().map { DbPriority(it.id, it.name, it.color) }
         val tasks = api.getTasks().map {
@@ -40,116 +37,58 @@ class ItemsRepository(context: Context) {
         db.categoryDao().insertAll(categories)
         db.priorityDao().insertAll(priorities)
         db.taskDao().insertAll(tasks)
-
-        emit(ResultWrapper.Success(Any()))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
     }
 
-    fun uploadToCloud() = flow {
-        emit(ResultWrapper.Loading)
+    fun uploadToCloud() = flowCall {
         uploadCategories()
         uploadTasks()
-
-        emit(ResultWrapper.Success((Any())))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
     }
 
-
-    fun addCategory(category: DbCategory) = flow {
-        emit(ResultWrapper.Loading)
+    fun addCategory(category: DbCategory) = flowCall {
         val returnVal = db.categoryDao().insertCategory(category)
         Timber.i(returnVal.toString())
         logAddCategory(returnVal.toInt())
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
+
+        returnVal
     }
 
-    fun addTask(task: DbTask) = flow {
-        emit(ResultWrapper.Loading)
+    fun addTask(task: DbTask) = flowCall {
         val returnVal = db.taskDao().insertTask(task)
         Timber.i(returnVal.toString())
         logAddTask(returnVal.toInt())
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
+
+        returnVal
     }
 
-    fun updateTask(task: DbTask) = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.taskDao().update(task)
+    fun updateTask(task: DbTask) = flowCall {
+        db.taskDao().update(task)
         logUpdateTask(task.id)
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
     }
 
-    fun deleteTask(task: DbTask) = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.taskDao().delete(task)
+    fun deleteTask(task: DbTask) = flowCall {
+        db.taskDao().delete(task)
         logDeleteTask(task.id)
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
-    }
-
-    fun getTask(id: Int) = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.taskDao().getTaskById(id)
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
     }
 
     fun getTaskDomain(id: Int) = db.taskDao().getTaskDomainById(id)
 
-    fun getCategory(id: Int) = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.categoryDao().getCategoryById(id)
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
-    }
-
-    fun getPriority(id: Int) = flow {
-        emit(ResultWrapper.Loading)
-        val returnVal = db.priorityDao().getPriorityById(id)
-        emit(ResultWrapper.Success(returnVal))
-    }.catch {
-        Timber.e(it)
-        emit(ResultWrapper.Error)
-    }
-
-    fun getTaskList() = db.taskDao().getAll()
-
-    fun getTaskDomainList() = db.taskDao().getAllDomain()
-
-    fun getRecviewItemList() = db.taskDao().getAllDomain().map { it.groupBy { it.category } }.map { map ->
-        val list = ArrayList<RecviewItem>()
-        map.keys.forEach { k ->
-            list.add(RecviewItem(false, category = k))
-            map[k]?.forEach { v ->
-                list.add(RecviewItem(true, task = v))
+    fun getRecviewItemList(): Flow<List<RecviewItem>> =
+        db.taskDao().getAllDomain().map { it.groupBy { item -> item.category } }.map { map ->
+            val list = ArrayList<RecviewItem>()
+            map.keys.forEach { k ->
+                list.add(RecviewItem(false, category = k))
+                map[k]?.forEach { v ->
+                    list.add(RecviewItem(true, task = v))
+                }
             }
+            return@map list
         }
-        return@map list as List<RecviewItem>
-    }
 
     fun getCategoryList() = db.categoryDao().getAll()
 
     fun getPriorityList() = db.priorityDao().getAll()
 
-    //CLOUD
+//CLOUD
 
     private suspend fun uploadCategories() {
         db.logDao().getAllCategory().forEach {
@@ -230,7 +169,7 @@ class ItemsRepository(context: Context) {
 
     private suspend fun cloudDeleteTask(id: Int) = api.deleteTask(id)
 
-    //LOGS
+//LOGS
 
     private suspend fun logAddTask(id: Int) {
         db.logDao().insert(DbLog(0, "INSERT", "TASK", id))

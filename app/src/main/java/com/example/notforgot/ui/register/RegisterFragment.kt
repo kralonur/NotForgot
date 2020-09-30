@@ -121,6 +121,11 @@ class RegisterFragment : Fragment() {
             .observe(viewLifecycleOwner) {
                 when (it) {
                     is ResultWrapper.Loading -> Timber.i("Loading")
+                    is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
+                    is ResultWrapper.ServerError -> with(requireContext()) {
+                        if (it.code == 400) this.showShortText(getString(R.string.error_user_exist))
+                        else this.showShortText(getString(R.string.error_server_error))
+                    }
                     is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.register_unsuccessful))
                     is ResultWrapper.Success -> doRegisterSuccess(it.value)
                 }
@@ -133,13 +138,14 @@ class RegisterFragment : Fragment() {
         viewModel.fetchFromCloud().observe(viewLifecycleOwner) {
             when (it) {
                 is ResultWrapper.Loading -> requireContext().showShortText(getString(R.string.data_downloading_from_cloud))
-                is ResultWrapper.Error -> {
-                    requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))
-                    viewModel.registerUnsuccessful()
-                }
+                is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
                 is ResultWrapper.Success -> {
                     requireContext().showShortText(getString(R.string.data_successfully_saved_to_db))
                     viewModel.navigateToMain()
+                }
+                else -> {
+                    requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))
+                    viewModel.registerUnsuccessful()
                 }
             }
         }

@@ -106,15 +106,23 @@ class MainFragment : Fragment(), TaskClickListener {
                         lottieBinding.text.text = getString(R.string.uploading)
                         setLoadingAnimation(lottieBinding.animationView)
                     }
-                    is ResultWrapper.Error -> {
-                        lottieBinding.text.text = getString(R.string.upload_unsuccessful)
-                        binding.swipeRefreshLayout.isRefreshing = false
-                        setErrorAnimation(lottieBinding.animationView, dialog)
-                    }
                     is ResultWrapper.Success -> {
                         lottieBinding.text.text = getString(R.string.upload_successful)
                         binding.swipeRefreshLayout.isRefreshing = false
                         setSuccessAnimation(lottieBinding.animationView, dialog)
+                    }
+                    else -> {
+                        when (it) {
+                            is ResultWrapper.NetworkError -> lottieBinding.text.text =
+                                getString(R.string.error_network_connection)
+                            is ResultWrapper.ServerError -> lottieBinding.text.text =
+                                getString(R.string.error_server_error)
+                            else -> lottieBinding.text.text =
+                                getString(R.string.upload_unsuccessful)
+
+                        }
+                        binding.swipeRefreshLayout.isRefreshing = false
+                        setErrorAnimation(lottieBinding.animationView, dialog)
                     }
                 }
             }

@@ -55,6 +55,10 @@
     <string name="task_created_successfully">Task created successfully</string>
     <string name="category_created_successfully">Category created successfully</string>
     <string name="uploading">Uploading</string>
+    <string name="error_network_connection">ERROR: Check your network connection!</string>
+    <string name="error_user_exist">ERROR: User already exists!</string>
+    <string name="error_user_does_not_exist">ERROR: User does not exist!</string>
+    <string name="error_server_error">ERROR: Server error!</string>
 
 
 </resources>

@@ -99,6 +99,11 @@ class LoginFragment : Fragment() {
             .observe(viewLifecycleOwner) {
                 when (it) {
                     is ResultWrapper.Loading -> Timber.i("Loading")
+                    is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
+                    is ResultWrapper.ServerError -> with(requireContext()) {
+                        if (it.code == 404) this.showShortText(getString(R.string.error_user_does_not_exist))
+                        else this.showShortText(getString(R.string.error_server_error))
+                    }
                     is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.login_unsuccessful))
                     is ResultWrapper.Success -> doLoginSuccess(it.value)
                 }
@@ -111,13 +116,14 @@ class LoginFragment : Fragment() {
         viewModel.fetchFromCloud().observe(viewLifecycleOwner) {
             when (it) {
                 is ResultWrapper.Loading -> requireContext().showShortText(getString(R.string.data_downloading_from_cloud))
-                is ResultWrapper.Error -> {
-                    requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))
-                    viewModel.loginUnsuccessful()
-                }
+                is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
                 is ResultWrapper.Success -> {
                     requireContext().showShortText(getString(R.string.data_successfully_saved_to_db))
                     viewModel.navigateToMain()
+                }
+                else -> {
+                    requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))
+                    viewModel.loginUnsuccessful()
                 }
             }
         }
