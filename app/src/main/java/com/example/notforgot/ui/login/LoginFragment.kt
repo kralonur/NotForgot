@@ -8,6 +8,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.notforgot.R
 import com.example.notforgot.databinding.FragmentLoginBinding
 import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.authentication.login.LoginResponse
@@ -66,15 +67,15 @@ class LoginFragment : Fragment() {
         var returnVal = true
 
         if (binding.mail.text.isNullOrEmpty()) {
-            binding.textFieldMail.error = "Mail cannot be empty!"
+            binding.textFieldMail.error = getString(R.string.mail_cannot_be_empty)
             returnVal = false
         } else if (!binding.mail.text.toString().isMail()) {
-            binding.textFieldMail.error = "Mail is not valid!"
+            binding.textFieldMail.error = getString(R.string.mail_is_not_valid)
             returnVal = false
         }
 
         if (binding.password.text.isNullOrEmpty()) {
-            binding.textFieldPass.error = "Password cannot be empty!"
+            binding.textFieldPass.error = getString(R.string.password_cannot_be_empty)
             returnVal = false
         }
 
@@ -98,7 +99,7 @@ class LoginFragment : Fragment() {
             .observe(viewLifecycleOwner) {
                 when (it) {
                     is ResultWrapper.Loading -> Timber.i("Loading")
-                    is ResultWrapper.Error -> requireContext().showShortText("Login unsuccessful!")
+                    is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.login_unsuccessful))
                     is ResultWrapper.Success -> doLoginSuccess(it.value)
                 }
             }
@@ -109,13 +110,13 @@ class LoginFragment : Fragment() {
 
         viewModel.fetchFromCloud().observe(viewLifecycleOwner) {
             when (it) {
-                is ResultWrapper.Loading -> Timber.i("Data downloading from cloud")
+                is ResultWrapper.Loading -> requireContext().showShortText(getString(R.string.data_downloading_from_cloud))
                 is ResultWrapper.Error -> {
-                    requireContext().showShortText("Fetching data unsuccessful!")
+                    requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))
                     viewModel.loginUnsuccessful()
                 }
                 is ResultWrapper.Success -> {
-                    requireContext().showShortText("Data successfully saved to db!")
+                    requireContext().showShortText(getString(R.string.data_successfully_saved_to_db))
                     viewModel.navigateToMain()
                 }
             }

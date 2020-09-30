@@ -21,6 +21,7 @@ import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.util.fromEpochToMs
 import com.example.notforgot.util.fromMsToEpoch
+import com.example.notforgot.util.showShortText
 import com.example.notforgot.util.toDateString
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -143,8 +144,10 @@ class TaskCreateFragment : Fragment() {
             it.description.setText(task.task.description)
             it.endDate.setText(task.task.deadline.fromEpochToMs()
                 .toDateString())
-            it.textFieldSelectCategory.hint = "Current Category: ${task.category.name}"
-            it.textFieldSelectPriority.hint = "Current Priority: ${task.priority.name}"
+            it.textFieldSelectCategory.hint =
+                getString(R.string.current_category, task.category.name)
+            it.textFieldSelectPriority.hint =
+                getString(R.string.current_priority, task.priority.name)
         }
     }
 
@@ -152,27 +155,31 @@ class TaskCreateFragment : Fragment() {
         var result = true
 
         if (binding.layoutCreate.title.text.isNullOrEmpty()) {
-            binding.layoutCreate.textFieldTitle.error = "Title cannot be empty!"
+            binding.layoutCreate.textFieldTitle.error = getString(R.string.title_cannot_be_empty)
             result = false
         }
 
         if (binding.layoutCreate.description.text.isNullOrEmpty()) {
-            binding.layoutCreate.textFieldDescription.error = "Description cannot be empty!"
+            binding.layoutCreate.textFieldDescription.error =
+                getString(R.string.description_cannot_be_empty)
             result = false
         }
 
         if (selectedCategory == null) {
-            binding.layoutCreate.textFieldSelectCategory.error = "Category cannot be empty!"
+            binding.layoutCreate.textFieldSelectCategory.error =
+                getString(R.string.category_cannot_be_empty)
             result = false
         }
 
         if (selectedPriority == null) {
-            binding.layoutCreate.textFieldSelectPriority.error = "Priority cannot be empty!"
+            binding.layoutCreate.textFieldSelectPriority.error =
+                getString(R.string.priority_cannot_be_empty)
             result = false
         }
 
         if (deadline == null) {
-            binding.layoutCreate.textFieldEndDate.error = "End date cannot be empty!"
+            binding.layoutCreate.textFieldEndDate.error =
+                getString(R.string.end_date_cannot_be_empty)
             result = false
         }
 
@@ -217,9 +224,10 @@ class TaskCreateFragment : Fragment() {
             requireNotNull(selectedPriority).id).observe(viewLifecycleOwner) {
             when (it) {
                 is ResultWrapper.Loading -> Timber.i("Creating task...")
-                is ResultWrapper.Error -> Timber.e("Error while creating task")
+                is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.error_while_creating_task))
                 is ResultWrapper.Success -> {
                     Timber.i("Task created with id: ${it.value}")
+                    requireContext().showShortText(getString(R.string.task_created_successfully))
                     viewModel.navigateToDetail(it.value.toInt())
                 }
             }
@@ -241,9 +249,10 @@ class TaskCreateFragment : Fragment() {
         viewModel.updateTask(task).observe(viewLifecycleOwner) {
             when (it) {
                 is ResultWrapper.Loading -> Timber.i("Editing task...")
-                is ResultWrapper.Error -> Timber.e("Error while editing task")
+                is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.error_while_editing_task))
                 is ResultWrapper.Success -> {
-                    Timber.i("Task edited successfully")
+                    Timber.i("Task edited with id: ${task.id}")
+                    requireContext().showShortText(getString(R.string.task_edited_successfully))
                     viewModel.navigateToDetail(taskToUpdate.task.id)
                 }
             }
@@ -283,7 +292,8 @@ class TaskCreateFragment : Fragment() {
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             if (categoryBinding.category.text.isNullOrEmpty()) {
-                categoryBinding.textFieldCategory.error = "Category name cannot be empty!"
+                categoryBinding.textFieldCategory.error =
+                    getString(R.string.category_name_cannot_be_empty)
             } else {
                 createCategory(categoryBinding, dialog)
             }
@@ -297,12 +307,12 @@ class TaskCreateFragment : Fragment() {
         viewModel.postCategory(categoryBinding.category.text.toString())
             .observe(viewLifecycleOwner) {
                 when (it) {
-                    is ResultWrapper.Loading -> categoryBinding.textFieldCategory.error =
-                        "Creating category..."
+                    is ResultWrapper.Loading -> Timber.i("Creating category...")
                     is ResultWrapper.Error -> categoryBinding.textFieldCategory.error =
-                        "Error while creating category"
+                        getString(R.string.error_while_creating_category)
                     is ResultWrapper.Success -> {
                         Timber.i("Category created with id: ${it.value}")
+                        requireContext().showShortText(getString(R.string.category_created_successfully))
                         dialog.dismiss()
                     }
                 }

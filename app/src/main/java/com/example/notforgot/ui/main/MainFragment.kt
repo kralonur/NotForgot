@@ -19,6 +19,7 @@ import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.recview.TaskAdapter
 import com.example.notforgot.recview.TaskClickListener
+import com.example.notforgot.util.showShortText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.GlobalScope
@@ -52,10 +53,11 @@ class MainFragment : Fragment(), TaskClickListener {
                 val deletedItem = adapter.currentList[viewHolder.adapterPosition].task!!
                 Timber.i(deletedItem.toString())
 
-                val snackbar = Snackbar.make(view, "Undo delete?", Snackbar.LENGTH_LONG)
-                    .setAction("Undo") {
-                        adapter.notifyDataSetChanged()
-                    }
+                val snackbar =
+                    Snackbar.make(view, getString(R.string.undo_delete_q), Snackbar.LENGTH_LONG)
+                        .setAction(getString(R.string.undo)) {
+                            adapter.notifyDataSetChanged()
+                        }
 
                 snackbar.addCallback(object : Snackbar.Callback() {
                     override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
@@ -63,7 +65,8 @@ class MainFragment : Fragment(), TaskClickListener {
                         if (event != DISMISS_EVENT_ACTION)
                             viewModel.deleteTask(deletedItem.task).observe(viewLifecycleOwner) {
                                 when (it) {
-                                    is ResultWrapper.Success -> Timber.i("${deletedItem.task.title} deleted")
+                                    is ResultWrapper.Success -> requireContext().showShortText(
+                                        getString(R.string.s_deleted, deletedItem.task.title))
                                 }
                             }
                     }
@@ -100,22 +103,16 @@ class MainFragment : Fragment(), TaskClickListener {
             viewModel.uploadToCloud().observe(viewLifecycleOwner) {
                 when (it) {
                     is ResultWrapper.Loading -> {
-                        Timber.i("Uploading")
-                        dialog.setMessage("Uploading")
-                        lottieBinding.text.text = "Uploading"
+                        lottieBinding.text.text = getString(R.string.uploading)
                         setLoadingAnimation(lottieBinding.animationView)
                     }
                     is ResultWrapper.Error -> {
-                        Timber.e("Upload unsuccessful!")
-                        dialog.setMessage("Upload unsuccessful!")
-                        lottieBinding.text.text = "Upload unsuccessful!"
+                        lottieBinding.text.text = getString(R.string.upload_unsuccessful)
                         binding.swipeRefreshLayout.isRefreshing = false
                         setErrorAnimation(lottieBinding.animationView, dialog)
                     }
                     is ResultWrapper.Success -> {
-                        Timber.i("Upload successful!")
-                        dialog.setMessage("Upload successful!")
-                        lottieBinding.text.text = "Upload successful!"
+                        lottieBinding.text.text = getString(R.string.upload_successful)
                         binding.swipeRefreshLayout.isRefreshing = false
                         setSuccessAnimation(lottieBinding.animationView, dialog)
                     }

@@ -24,6 +24,37 @@
     <string name="until">Until %s</string>
     <string name="edit">Edit</string>
     <string name="edit_task">Edit Task</string>
+    <string name="current_category">Current Category: %s</string>
+    <string name="current_priority">Current Priority: %s</string>
+    <string name="undo">Undo</string>
+    <string name="undo_delete_q">Undo delete?</string>
+    <string name="s_deleted">%s deleted</string>
+
+    <string name="mail_cannot_be_empty">Mail cannot be empty!</string>
+    <string name="name_cannot_be_empty">Name cannot be empty!</string>
+    <string name="password_cannot_be_empty">Password cannot be empty!</string>
+    <string name="title_cannot_be_empty">Title cannot be empty!</string>
+    <string name="description_cannot_be_empty">Description cannot be empty!</string>
+    <string name="category_cannot_be_empty">Category cannot be empty!</string>
+    <string name="category_name_cannot_be_empty">Category name cannot be empty!</string>
+    <string name="priority_cannot_be_empty">Priority cannot be empty!</string>
+    <string name="end_date_cannot_be_empty">End date cannot be empty!</string>
+    <string name="passwords_should_be_same">Passwords should be same!</string>
+    <string name="mail_is_not_valid">Mail is not valid!</string>
+    <string name="login_unsuccessful">Login unsuccessful!</string>
+    <string name="upload_successful">Upload successful!</string>
+    <string name="upload_unsuccessful">Upload unsuccessful!</string>
+    <string name="register_unsuccessful">Register unsuccessful!</string>
+    <string name="data_downloading_from_cloud">Data downloading from cloud</string>
+    <string name="fetching_data_unsuccessful">Fetching data unsuccessful!</string>
+    <string name="data_successfully_saved_to_db">Data successfully saved to db!</string>
+    <string name="error_while_creating_task">Error while creating task!</string>
+    <string name="error_while_creating_category">Error while creating category!</string>
+    <string name="error_while_editing_task">Error while editing task!</string>
+    <string name="task_edited_successfully">Task edited successfully</string>
+    <string name="task_created_successfully">Task created successfully</string>
+    <string name="category_created_successfully">Category created successfully</string>
+    <string name="uploading">Uploading</string>
 
 
 </resources>
