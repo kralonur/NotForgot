@@ -121,15 +121,12 @@ class TaskCreateFragment : Fragment() {
             showCategoryDialog()
         }
 
-        viewModel.navigateDetail.observe(viewLifecycleOwner) {
-            it?.let {
-                findNavController().navigate(
-                    TaskCreateFragmentDirections.actionTaskCreateFragmentToTaskDetailFragment(it)
-                )
-            }
-            viewModel.navigateToDetailDone()
-        }
+    }
 
+    private fun navigateToDetail(id: Int) {
+        findNavController().navigate(
+            TaskCreateFragmentDirections.actionTaskCreateFragmentToTaskDetailFragment(id)
+        )
     }
 
     private fun updateLayoutWithTask(task: TaskDomain) {
@@ -220,7 +217,7 @@ class TaskCreateFragment : Fragment() {
                 is ResultWrapper.Success -> {
                     Timber.i("Task created with id: ${it.value}")
                     requireContext().showShortText(getString(R.string.task_created_successfully))
-                    viewModel.navigateToDetail(it.value.toInt())
+                    navigateToDetail(it.value.toInt())
                 }
             }
         }
@@ -245,7 +242,7 @@ class TaskCreateFragment : Fragment() {
                 is ResultWrapper.Success -> {
                     Timber.i("Task edited with id: ${task.id}")
                     requireContext().showShortText(getString(R.string.task_edited_successfully))
-                    viewModel.navigateToDetail(taskToUpdate.task.id)
+                    navigateToDetail(taskToUpdate.task.id)
                 }
             }
         }

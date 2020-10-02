@@ -40,26 +40,20 @@ class LoginFragment : Fragment() {
         }
 
         binding.buttonRegister.setOnClickListener {
-            viewModel.navigateToRegister()
+            navigateToRegister()
         }
+    }
 
-        viewModel.navigateRegister.observe(viewLifecycleOwner) {
-            it?.let {
-                if (it) findNavController().navigate(
-                    LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
-                )
-            }
-            viewModel.navigateToRegisterDone()
-        }
+    private fun navigateToRegister() {
+        findNavController().navigate(
+            LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
+        )
+    }
 
-        viewModel.navigateMain.observe(viewLifecycleOwner) {
-            it?.let {
-                if (it) findNavController().navigate(
-                    LoginFragmentDirections.actionLoginFragmentToMainFragment()
-                )
-            }
-            viewModel.navigateToMainDone()
-        }
+    private fun navigateToMain() {
+        findNavController().navigate(
+            LoginFragmentDirections.actionLoginFragmentToMainFragment()
+        )
     }
 
     private fun checkInputs(): Boolean {
@@ -118,7 +112,7 @@ class LoginFragment : Fragment() {
                 is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
                 is ResultWrapper.Success -> {
                     requireContext().showShortText(getString(R.string.data_successfully_saved_to_db))
-                    viewModel.navigateToMain()
+                    navigateToMain()
                 }
                 else -> {
                     requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))

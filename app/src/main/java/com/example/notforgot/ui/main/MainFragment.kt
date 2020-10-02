@@ -120,15 +120,12 @@ class MainFragment : Fragment(), TaskClickListener {
                 }
             }
         }
+    }
 
-        viewModel.navigateDetail.observe(viewLifecycleOwner) {
-            it?.let {
-                findNavController().navigate(
-                    MainFragmentDirections.actionMainFragmentToTaskDetailFragment(it.id)
-                )
-            }
-            viewModel.navigateToDetailDone()
-        }
+    private fun navigateToDetail(id: Int) {
+        findNavController().navigate(
+            MainFragmentDirections.actionMainFragmentToTaskDetailFragment(id)
+        )
     }
 
     private fun hideList() {
@@ -181,7 +178,7 @@ class MainFragment : Fragment(), TaskClickListener {
     }
 
     override fun onClick(task_data: DbTask) {
-        viewModel.navigateToDetail(task_data)
+        navigateToDetail(task_data.id)
     }
 
     override fun onChecked(task_data: DbTask) {

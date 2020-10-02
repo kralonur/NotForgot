@@ -1,7 +1,10 @@
 package com.example.notforgot.ui.task_create
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.ResultWrapper
@@ -12,12 +15,7 @@ import kotlinx.coroutines.flow.catch
 import timber.log.Timber
 
 class TaskCreateViewModel(application: Application) : AndroidViewModel(application) {
-    private val context = getApplication<Application>().applicationContext
-    private val repo = ItemsRepository(context)
-
-    private val _navigateDetail = MutableLiveData<Int?>()
-    val navigateDetail: LiveData<Int?>
-        get() = _navigateDetail
+    private val repo = ItemsRepository(getApplication<Application>().applicationContext)
 
     fun getCategoryList() = repo.getCategoryList().catch { Timber.e(it) }
         .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
@@ -35,7 +33,7 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         categoryId: Int,
         priorityId: Int,
     ): LiveData<ResultWrapper<Long>> {
-        val task = DbTask(SharedPref.getTaskId(context),
+        val task = DbTask(SharedPref.getTaskId(getApplication<Application>().applicationContext),
             title,
             description,
             0,
@@ -53,17 +51,11 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun postCategory(name: String): LiveData<ResultWrapper<Long>> {
-        val category = DbCategory(SharedPref.getCategoryId(context), name)
+        val category =
+            DbCategory(SharedPref.getCategoryId(getApplication<Application>().applicationContext),
+                name)
         return repo.addCategory(category)
             .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
-    }
-
-    fun navigateToDetail(id: Int) {
-        _navigateDetail.postValue(id)
-    }
-
-    fun navigateToDetailDone() {
-        _navigateDetail.postValue(null)
     }
 
 }

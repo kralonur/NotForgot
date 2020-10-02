@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.databinding.FragmentSplashBinding
 import com.example.notforgot.util.getToken
@@ -14,7 +13,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SplashFragment : Fragment() {
-    private val viewModel by viewModels<SplashViewModel>()
     private lateinit var binding: FragmentSplashBinding
 
     override fun onCreateView(
@@ -34,28 +32,23 @@ class SplashFragment : Fragment() {
 
             val token = requireContext().getToken()
             if (token.isEmpty() || token.isBlank()) {
-                viewModel.navigateToLogin()
+                navigateToLogin()
             } else {
-                viewModel.navigateToMain()
+                navigateToMain()
             }
         }
 
-        viewModel.navigateLogin.observe(viewLifecycleOwner) {
-            it?.let {
-                if (it) findNavController().navigate(
-                    SplashFragmentDirections.actionSplashFragmentToLoginFragment()
-                )
-            }
-            viewModel.navigateToLoginDone()
-        }
+    }
 
-        viewModel.navigateMain.observe(viewLifecycleOwner) {
-            it?.let {
-                if (it) findNavController().navigate(
-                    SplashFragmentDirections.actionSplashFragmentToMainFragment()
-                )
-            }
-            viewModel.navigateToMainDone()
-        }
+    private fun navigateToLogin() {
+        findNavController().navigate(
+            SplashFragmentDirections.actionSplashFragmentToLoginFragment()
+        )
+    }
+
+    private fun navigateToMain() {
+        findNavController().navigate(
+            SplashFragmentDirections.actionSplashFragmentToMainFragment()
+        )
     }
 }

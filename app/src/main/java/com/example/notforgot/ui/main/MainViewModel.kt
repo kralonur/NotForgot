@@ -1,7 +1,10 @@
 package com.example.notforgot.ui.main
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.repository.ItemsRepository
@@ -10,13 +13,7 @@ import kotlinx.coroutines.flow.catch
 import timber.log.Timber
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val _navigateDetail = MutableLiveData<DbTask?>()
-    val navigateDetail: LiveData<DbTask?>
-        get() = _navigateDetail
-
-    private val context = getApplication<Application>().applicationContext
-    private val repo = ItemsRepository(context)
+    private val repo = ItemsRepository(getApplication<Application>().applicationContext)
 
     fun getRecviewItemList() =
         repo.getRecviewItemList().catch { Timber.e(it) }
@@ -35,11 +32,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return repo.updateTask(task).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
     }
 
-    fun navigateToDetail(task: DbTask) {
-        _navigateDetail.postValue(task)
-    }
-
-    fun navigateToDetailDone() {
-        _navigateDetail.postValue(null)
-    }
 }

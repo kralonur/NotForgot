@@ -41,16 +41,14 @@ class TaskDetailFragment : Fragment() {
         }
 
         binding.materialButton.setOnClickListener {
-            viewModel.navigateToEdit(taskId)
+            navigateToEdit(taskId)
         }
 
-        viewModel.navigateEdit.observe(viewLifecycleOwner) {
-            it?.let {
-                findNavController().navigate(
-                    TaskDetailFragmentDirections.actionTaskDetailFragmentToTaskCreateFragment(it)
-                )
-            }
-            viewModel.navigateToEditDone()
-        }
+    }
+
+    private fun navigateToEdit(id: Int) {
+        findNavController().navigate(
+            TaskDetailFragmentDirections.actionTaskDetailFragmentToTaskCreateFragment(id)
+        )
     }
 }

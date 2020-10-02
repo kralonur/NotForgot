@@ -1,7 +1,10 @@
 package com.example.notforgot.ui.register
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.model.remote.authentication.register.Register
 import com.example.notforgot.model.remote.authentication.register.RegisterResponse
@@ -12,18 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val _navigateLogin = MutableLiveData<Boolean?>()
-    val navigateLogin: LiveData<Boolean?>
-        get() = _navigateLogin
-
-    private val _navigateMain = MutableLiveData<Boolean?>()
-    val navigateMain: LiveData<Boolean?>
-        get() = _navigateMain
-
-    private val context = getApplication<Application>().applicationContext
-    private val authRepo = AuthRepository(context)
-    private val itemsRepo = ItemsRepository(context)
+    private val authRepo = AuthRepository(getApplication<Application>().applicationContext)
+    private val itemsRepo = ItemsRepository(getApplication<Application>().applicationContext)
 
     fun register(
         mail: String,
@@ -35,30 +28,14 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun completeRegister(registerResponse: RegisterResponse) {
-        context.writeToken(registerResponse.token)
+        getApplication<Application>().applicationContext.writeToken(registerResponse.token)
         Timber.i(registerResponse.token)
     }
 
     fun registerUnsuccessful() {
-        context.writeToken("")
+        getApplication<Application>().applicationContext.writeToken("")
     }
 
     fun fetchFromCloud() =
         itemsRepo.fetchFromCloud().asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
-
-    fun navigateToLogin() {
-        _navigateLogin.postValue(true)
-    }
-
-    fun navigateToLoginDone() {
-        _navigateLogin.postValue(null)
-    }
-
-    fun navigateToMain() {
-        _navigateMain.postValue(true)
-    }
-
-    fun navigateToMainDone() {
-        _navigateMain.postValue(null)
-    }
 }
