@@ -6,7 +6,7 @@ import android.graphics.drawable.ColorDrawable
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notforgot.recview.TaskHeaderViewHolder
+import com.example.notforgot.ui.main.recview.TaskHeaderViewHolder
 
 
 abstract class SwipeToDeleteCallback(context: Context) :

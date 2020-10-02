@@ -14,11 +14,11 @@ import androidx.navigation.fragment.navArgs
 import com.example.notforgot.R
 import com.example.notforgot.databinding.FragmentCreateBinding
 import com.example.notforgot.databinding.LayoutCreateCategoryBinding
-import com.example.notforgot.model.ResultWrapper
-import com.example.notforgot.model.TaskDomain
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
+import com.example.notforgot.model.domain.ResultWrapper
+import com.example.notforgot.model.domain.TaskDomain
 import com.example.notforgot.util.fromEpochToMs
 import com.example.notforgot.util.fromMsToEpoch
 import com.example.notforgot.util.showShortText

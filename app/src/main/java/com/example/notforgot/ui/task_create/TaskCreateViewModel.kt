@@ -2,9 +2,9 @@ package com.example.notforgot.ui.task_create
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbTask
+import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.repository.ItemsRepository
 import com.example.notforgot.util.SharedPref
 import kotlinx.coroutines.Dispatchers

@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.notforgot.model.db.DbLog
+import com.example.notforgot.model.db.LogModelConverter
+import com.example.notforgot.model.db.LogTypeConverter
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
@@ -14,6 +17,7 @@ import com.example.notforgot.model.db.items.DbTask
     version = 1,
     exportSchema = false
 )
+@TypeConverters(LogModelConverter::class, LogTypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     companion object {

@@ -2,8 +2,8 @@ package com.example.notforgot.ui.main
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.items.DbTask
+import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.repository.ItemsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch

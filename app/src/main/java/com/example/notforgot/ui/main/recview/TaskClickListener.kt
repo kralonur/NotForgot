@@ -1,4 +1,4 @@
-package com.example.notforgot.recview
+package com.example.notforgot.ui.main.recview
 
 import com.example.notforgot.model.db.items.DbTask
 

@@ -13,5 +13,5 @@ data class DbTask(
     @ColumnInfo(name = "created") val created: Long,
     @ColumnInfo(name = "deadline") var deadline: Long,
     @ColumnInfo(name = "category_id") var category_id: Int,
-    @ColumnInfo(name = "priority_id") var priority_id: Int
+    @ColumnInfo(name = "priority_id") var priority_id: Int,
 )

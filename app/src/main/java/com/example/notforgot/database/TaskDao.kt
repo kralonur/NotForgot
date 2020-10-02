@@ -1,15 +1,12 @@
 package com.example.notforgot.database
 
 import androidx.room.*
-import com.example.notforgot.model.TaskDomain
 import com.example.notforgot.model.db.items.DbTask
+import com.example.notforgot.model.domain.TaskDomain
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-
-    @Query("SELECT * FROM task")
-    fun getAll(): Flow<List<DbTask>>
 
     @Transaction
     @Query("SELECT * FROM task")

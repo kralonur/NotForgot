@@ -3,13 +3,15 @@ package com.example.notforgot.repository
 import android.content.Context
 import com.example.notforgot.api.NetworkService
 import com.example.notforgot.database.AppDatabase
-import com.example.notforgot.model.RecviewItem
 import com.example.notforgot.model.db.DbLog
+import com.example.notforgot.model.db.LogModel
+import com.example.notforgot.model.db.LogType
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
-import com.example.notforgot.model.items.category.CategoryPost
-import com.example.notforgot.model.items.task.TaskPost
+import com.example.notforgot.model.domain.RecviewItem
+import com.example.notforgot.model.remote.items.category.CategoryPost
+import com.example.notforgot.model.remote.items.task.TaskPost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -91,22 +93,20 @@ class ItemsRepository(context: Context) : BaseRepository() {
 //CLOUD
 
     private suspend fun uploadCategories() {
-        db.logDao().getAllCategory().forEach {
+        db.logDao().getAllByModel(LogModel.CATEGORY).forEach {
             val category = db.categoryDao().getCategoryById(it.model_id)
-            when (it.type) {
-                "INSERT" -> cloudPostCategory(category)
-            }
+            if (it.logType == LogType.INSERT) cloudPostCategory(category)
             db.logDao().delete(it)
         }
     }
 
     private suspend fun uploadTasks() {
-        db.logDao().getAllTask().forEach {
+        db.logDao().getAllByModel(LogModel.TASK).forEach {
             val task = db.taskDao().getTaskById(it.model_id)
-            when (it.type) {
-                "INSERT" -> cloudPostTask(task)
-                "UPDATE" -> cloudPatchTask(task)
-                "DELETE" -> cloudDeleteTask(it.model_id)
+            when (it.logType) {
+                LogType.INSERT -> cloudPostTask(task)
+                LogType.UPDATE -> cloudPatchTask(task)
+                LogType.DELETE -> cloudDeleteTask(it.model_id)
             }
             db.logDao().delete(it)
         }
@@ -172,34 +172,40 @@ class ItemsRepository(context: Context) : BaseRepository() {
 //LOGS
 
     private suspend fun logAddTask(id: Int) {
-        db.logDao().insert(DbLog(0, "INSERT", "TASK", id))
+        db.logDao().insert(DbLog(0, LogType.INSERT, LogModel.TASK, id))
     }
 
     private suspend fun logUpdateTask(id: Int) {
-        val taskLog = db.logDao().getTaskLogById(id)
+        val taskLog = db.logDao().getLogByIdModel(id, LogModel.TASK)
         if (taskLog == null) {
-            db.logDao().insert(DbLog(0, "UPDATE", "TASK", id))
+            db.logDao()
+                .insert(DbLog(0, LogType.UPDATE, LogModel.TASK, id))
         }
 
     }
 
     private suspend fun logDeleteTask(id: Int) {
-        val taskLog = db.logDao().getTaskLogById(id)
+        val taskLog = db.logDao().getLogByIdModel(id, LogModel.TASK)
         if (taskLog != null) {
-            when (taskLog.type) {
-                "INSERT" -> db.logDao().delete(taskLog)
-                "UPDATE" -> {
+            when (taskLog.logType) {
+                LogType.INSERT -> db.logDao().delete(taskLog)
+                LogType.UPDATE -> {
                     db.logDao().delete(taskLog)
-                    db.logDao().insert(DbLog(0, "DELETE", "TASK", id))
+                    db.logDao().insert(DbLog(0,
+                        LogType.DELETE,
+                        LogModel.TASK,
+                        id))
                 }
             }
         } else {
-            db.logDao().insert(DbLog(0, "DELETE", "TASK", id))
+            db.logDao()
+                .insert(DbLog(0, LogType.DELETE, LogModel.TASK, id))
         }
     }
 
     private suspend fun logAddCategory(id: Int) {
-        db.logDao().insert(DbLog(0, "INSERT", "CATEGORY", id))
+        db.logDao()
+            .insert(DbLog(0, LogType.INSERT, LogModel.CATEGORY, id))
     }
 
 }

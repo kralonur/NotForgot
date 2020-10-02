@@ -6,7 +6,7 @@
     <data>
         <variable
             name="task"
-            type="com.example.notforgot.model.TaskDomain" />
+            type="com.example.notforgot.model.domain.TaskDomain" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

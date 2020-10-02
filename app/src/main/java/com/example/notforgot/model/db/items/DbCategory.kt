@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "category")
 data class DbCategory(
     @PrimaryKey(autoGenerate = false) val id: Int,
-    @ColumnInfo(name = "name") val name: String
+    @ColumnInfo(name = "name") val name: String,
 )

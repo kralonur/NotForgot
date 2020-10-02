@@ -2,8 +2,8 @@ package com.example.notforgot.repository
 
 import android.content.Context
 import com.example.notforgot.api.NetworkService
-import com.example.notforgot.model.authentication.login.Login
-import com.example.notforgot.model.authentication.register.Register
+import com.example.notforgot.model.remote.authentication.login.Login
+import com.example.notforgot.model.remote.authentication.register.Register
 
 class AuthRepository(context: Context) : BaseRepository() {
     private val api = NetworkService.getAuthService(context)

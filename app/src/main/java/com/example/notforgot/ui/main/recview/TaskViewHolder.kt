@@ -1,8 +1,8 @@
-package com.example.notforgot.recview
+package com.example.notforgot.ui.main.recview
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notforgot.databinding.ItemTaskBinding
-import com.example.notforgot.model.TaskDomain
+import com.example.notforgot.model.domain.TaskDomain
 
 class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
 

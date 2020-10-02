@@ -1,4 +1,4 @@
-package com.example.notforgot.recview
+package com.example.notforgot.ui.main.recview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notforgot.databinding.ItemTaskBinding
 import com.example.notforgot.databinding.ItemTaskHeaderBinding
-import com.example.notforgot.model.RecviewItem
+import com.example.notforgot.model.domain.RecviewItem
 
 private const val ITEM_VIEW_TYPE_HEADER = 0
 private const val ITEM_VIEW_TYPE_ITEM = 1

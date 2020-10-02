@@ -1,6 +1,6 @@
 package com.example.notforgot.repository
 
-import com.example.notforgot.model.ResultWrapper
+import com.example.notforgot.model.domain.ResultWrapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException

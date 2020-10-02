@@ -8,5 +8,5 @@ import androidx.room.PrimaryKey
 data class DbPriority(
     @PrimaryKey(autoGenerate = false) val id: Int,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "color") val color: String
+    @ColumnInfo(name = "color") val color: String,
 )

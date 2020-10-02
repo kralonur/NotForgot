@@ -2,9 +2,9 @@ package com.example.notforgot.ui.login
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.notforgot.model.ResultWrapper
-import com.example.notforgot.model.authentication.login.Login
-import com.example.notforgot.model.authentication.login.LoginResponse
+import com.example.notforgot.model.domain.ResultWrapper
+import com.example.notforgot.model.remote.authentication.login.Login
+import com.example.notforgot.model.remote.authentication.login.LoginResponse
 import com.example.notforgot.repository.AuthRepository
 import com.example.notforgot.repository.ItemsRepository
 import com.example.notforgot.util.writeToken

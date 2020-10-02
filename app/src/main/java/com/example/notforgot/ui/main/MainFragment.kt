@@ -15,10 +15,10 @@ import com.airbnb.lottie.LottieAnimationView
 import com.example.notforgot.R
 import com.example.notforgot.databinding.DialogLoadingBinding
 import com.example.notforgot.databinding.FragmentMainBinding
-import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.items.DbTask
-import com.example.notforgot.recview.TaskAdapter
-import com.example.notforgot.recview.TaskClickListener
+import com.example.notforgot.model.domain.ResultWrapper
+import com.example.notforgot.ui.main.recview.TaskAdapter
+import com.example.notforgot.ui.main.recview.TaskClickListener
 import com.example.notforgot.util.showShortText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar

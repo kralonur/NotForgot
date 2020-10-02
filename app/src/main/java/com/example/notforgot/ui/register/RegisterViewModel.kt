@@ -2,9 +2,9 @@ package com.example.notforgot.ui.register
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.notforgot.model.ResultWrapper
-import com.example.notforgot.model.authentication.register.Register
-import com.example.notforgot.model.authentication.register.RegisterResponse
+import com.example.notforgot.model.domain.ResultWrapper
+import com.example.notforgot.model.remote.authentication.register.Register
+import com.example.notforgot.model.remote.authentication.register.RegisterResponse
 import com.example.notforgot.repository.AuthRepository
 import com.example.notforgot.repository.ItemsRepository
 import com.example.notforgot.util.writeToken

@@ -1,10 +1,10 @@
 package com.example.notforgot.api.service
 
-import com.example.notforgot.model.items.category.Category
-import com.example.notforgot.model.items.category.CategoryPost
-import com.example.notforgot.model.items.priority.Priority
-import com.example.notforgot.model.items.task.Task
-import com.example.notforgot.model.items.task.TaskPost
+import com.example.notforgot.model.remote.items.category.Category
+import com.example.notforgot.model.remote.items.category.CategoryPost
+import com.example.notforgot.model.remote.items.priority.Priority
+import com.example.notforgot.model.remote.items.task.Task
+import com.example.notforgot.model.remote.items.task.TaskPost
 import com.example.notforgot.util.Constants
 import retrofit2.http.*
 
@@ -18,7 +18,7 @@ interface ItemsService {
 
     @POST(Constants.Api.CATEGORIES)
     suspend fun postCategory(
-        @Body category: CategoryPost
+        @Body category: CategoryPost,
     ): Category
 
     @GET(Constants.Api.TASKS)
@@ -26,17 +26,17 @@ interface ItemsService {
 
     @POST(Constants.Api.TASKS)
     suspend fun postTask(
-        @Body task: TaskPost
+        @Body task: TaskPost,
     ): Task
 
     @PATCH("${Constants.Api.TASKS}/{id}")
     suspend fun patchTask(
         @Path("id") id: Int,
-        @Body task: TaskPost
+        @Body task: TaskPost,
     ): Task
 
     @DELETE("${Constants.Api.TASKS}/{id}")
     suspend fun deleteTask(
-        @Path("id") id: Int
+        @Path("id") id: Int,
     )
 }

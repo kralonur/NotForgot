@@ -1,4 +1,4 @@
-package com.example.notforgot.recview
+package com.example.notforgot.ui.main.recview
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notforgot.databinding.ItemTaskHeaderBinding

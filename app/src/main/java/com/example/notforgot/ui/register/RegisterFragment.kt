@@ -10,8 +10,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.R
 import com.example.notforgot.databinding.FragmentRegisterBinding
-import com.example.notforgot.model.ResultWrapper
-import com.example.notforgot.model.authentication.register.RegisterResponse
+import com.example.notforgot.model.domain.ResultWrapper
+import com.example.notforgot.model.remote.authentication.register.RegisterResponse
 import com.example.notforgot.util.isMail
 import com.example.notforgot.util.showShortText
 import timber.log.Timber

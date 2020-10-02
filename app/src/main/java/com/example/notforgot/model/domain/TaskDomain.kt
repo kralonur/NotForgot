@@ -1,4 +1,4 @@
-package com.example.notforgot.model
+package com.example.notforgot.model.domain
 
 import androidx.room.Embedded
 import androidx.room.Relation
@@ -15,5 +15,5 @@ data class TaskDomain(
     @Relation(
         parentColumn = "category_id",
         entityColumn = "id"
-    ) val category: DbCategory
+    ) val category: DbCategory,
 )
