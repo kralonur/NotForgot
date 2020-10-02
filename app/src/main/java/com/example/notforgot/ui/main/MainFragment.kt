@@ -37,7 +37,6 @@ class MainFragment : Fragment(), TaskClickListener {
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentMainBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 

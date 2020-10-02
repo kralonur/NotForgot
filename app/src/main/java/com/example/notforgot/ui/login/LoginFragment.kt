@@ -26,7 +26,6 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 

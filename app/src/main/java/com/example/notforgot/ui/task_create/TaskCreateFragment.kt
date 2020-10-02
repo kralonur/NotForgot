@@ -45,7 +45,6 @@ class TaskCreateFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         binding = LayoutDetailCreateBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
         setLayout()
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()

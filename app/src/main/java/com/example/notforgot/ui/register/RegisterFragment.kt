@@ -26,7 +26,6 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentRegisterBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 

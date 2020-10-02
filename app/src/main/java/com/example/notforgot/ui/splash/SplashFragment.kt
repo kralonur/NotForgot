@@ -23,7 +23,6 @@ class SplashFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentSplashBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 

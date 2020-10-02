@@ -1,25 +1,23 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/textFieldCategory"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/create_category"
+    android:paddingStart="16dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="16dp"
+    app:boxBackgroundColor="@android:color/transparent"
+    app:counterEnabled="true"
+    app:counterMaxLength="140"
+    app:errorEnabled="true">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldCategory"
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/create_category"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="16dp"
-        app:boxBackgroundColor="@android:color/transparent"
-        app:counterEnabled="true"
-        app:counterMaxLength="140"
-        app:errorEnabled="true">
+        android:inputType="text" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text" />
+</com.google.android.material.textfield.TextInputLayout>
 
-    </com.google.android.material.textfield.TextInputLayout>
-</layout>
