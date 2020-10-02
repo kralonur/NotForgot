@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#F68545</color>
     <color name="colorAccent">#F68545</color>
 
+    <color name="secondaryTextColor">#484848</color>
+    <color name="secondaryButtonColor">#D8D8D8</color>
+
     <color name="taskCompleted">#06B003</color>
     <color name="taskNotCompleted">#F61919</color>
 </resources>
