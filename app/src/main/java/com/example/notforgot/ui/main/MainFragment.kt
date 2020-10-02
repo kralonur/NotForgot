@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.notforgot.R
+import com.example.notforgot.databinding.DialogLoadingBinding
 import com.example.notforgot.databinding.FragmentMainBinding
-import com.example.notforgot.databinding.LayoutLottieBinding
 import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.recview.TaskAdapter
@@ -79,13 +79,7 @@ class MainFragment : Fragment(), TaskClickListener {
 
         viewModel.getRecviewItemList().observe(viewLifecycleOwner) {
             Timber.i(it.toString())
-            if (it.isEmpty()) {
-                binding.group.visibility = View.VISIBLE
-                binding.recView.visibility = View.GONE
-            } else {
-                binding.group.visibility = View.GONE
-                binding.recView.visibility = View.VISIBLE
-            }
+            if (it.isEmpty()) hideList() else showList()
             adapter.submitList(it)
         }
 
@@ -96,7 +90,7 @@ class MainFragment : Fragment(), TaskClickListener {
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            val lottieBinding = LayoutLottieBinding.inflate(layoutInflater)
+            val lottieBinding = DialogLoadingBinding.inflate(layoutInflater)
             val dialog = lottieDialog(lottieBinding)
 
             viewModel.uploadToCloud().observe(viewLifecycleOwner) {
@@ -135,6 +129,22 @@ class MainFragment : Fragment(), TaskClickListener {
             }
             viewModel.navigateToDetailDone()
         }
+    }
+
+    private fun hideList() {
+        binding.recView.visibility = View.GONE
+
+        binding.placeholderImage.visibility = View.VISIBLE
+        binding.placeholderTextView.visibility = View.VISIBLE
+        binding.placeholderTextView2.visibility = View.VISIBLE
+    }
+
+    private fun showList() {
+        binding.recView.visibility = View.VISIBLE
+
+        binding.placeholderImage.visibility = View.GONE
+        binding.placeholderTextView.visibility = View.GONE
+        binding.placeholderTextView2.visibility = View.GONE
     }
 
     private fun setLoadingAnimation(animation: LottieAnimationView) {
@@ -182,7 +192,7 @@ class MainFragment : Fragment(), TaskClickListener {
         }
     }
 
-    private fun lottieDialog(lottieBinding: LayoutLottieBinding): AlertDialog {
+    private fun lottieDialog(lottieBinding: DialogLoadingBinding): AlertDialog {
         return MaterialAlertDialogBuilder(requireContext())
             .setView(lottieBinding.root)
             .show()

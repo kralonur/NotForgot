@@ -26,14 +26,4 @@ abstract class BaseRepository {
         }
     }
 
-//    private fun convertErrorBody(throwable: HttpException): ErrorResponse? {
-//        return try {
-//            throwable.response()?.errorBody()?.source()?.let {
-//                val moshiAdapter = Moshi.Builder().build().adapter(ErrorResponse::class.java)
-//                moshiAdapter.fromJson(it)
-//            }
-//        } catch (exception: Exception) {
-//            null
-//        }
-//    }
 }

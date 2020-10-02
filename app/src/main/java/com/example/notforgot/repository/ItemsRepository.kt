@@ -177,12 +177,7 @@ class ItemsRepository(context: Context) : BaseRepository() {
 
     private suspend fun logUpdateTask(id: Int) {
         val taskLog = db.logDao().getTaskLogById(id)
-        if (taskLog != null) {
-            when (taskLog.type) {
-                "INSERT", "UPDATE", "DELETE" -> {
-                }
-            }
-        } else {
+        if (taskLog == null) {
             db.logDao().insert(DbLog(0, "UPDATE", "TASK", id))
         }
 
@@ -196,8 +191,6 @@ class ItemsRepository(context: Context) : BaseRepository() {
                 "UPDATE" -> {
                     db.logDao().delete(taskLog)
                     db.logDao().insert(DbLog(0, "DELETE", "TASK", id))
-                }
-                "DELETE" -> {
                 }
             }
         } else {

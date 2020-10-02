@@ -11,7 +11,7 @@ class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHo
         clickListener: TaskClickListener,
     ) {
         binding.task = task
-        binding.clickListener = clickListener
+        binding.layout.setOnClickListener { clickListener.onClick(task.task) }
         binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
             val checked = if (isChecked) 1 else 0
             if (task.task.done != checked)

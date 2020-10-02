@@ -12,8 +12,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.notforgot.R
+import com.example.notforgot.databinding.FragmentCreateBinding
 import com.example.notforgot.databinding.LayoutCreateCategoryBinding
-import com.example.notforgot.databinding.LayoutDetailCreateBinding
 import com.example.notforgot.model.ResultWrapper
 import com.example.notforgot.model.TaskDomain
 import com.example.notforgot.model.db.items.DbCategory
@@ -29,7 +29,7 @@ import timber.log.Timber
 
 class TaskCreateFragment : Fragment() {
     private val viewModel by viewModels<TaskCreateViewModel>()
-    private lateinit var binding: LayoutDetailCreateBinding
+    private lateinit var binding: FragmentCreateBinding
     private val args by navArgs<TaskCreateFragmentArgs>()
 
     private lateinit var taskToUpdate: TaskDomain
@@ -44,8 +44,7 @@ class TaskCreateFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        binding = LayoutDetailCreateBinding.inflate(inflater, container, false)
-        setLayout()
+        binding = FragmentCreateBinding.inflate(inflater, container, false)
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -133,10 +132,6 @@ class TaskCreateFragment : Fragment() {
 
     }
 
-    private fun setLayout() {
-        binding.groupCreate.visibility = View.VISIBLE
-    }
-
     private fun updateLayoutWithTask(task: TaskDomain) {
         binding.layoutCreate.let {
             it.title.setText(task.task.title)
@@ -203,9 +198,6 @@ class TaskCreateFragment : Fragment() {
     private fun showSaveDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setMessage(resources.getString(R.string.save_q))
-            .setNeutralButton(resources.getString(R.string.cancel)) { _, _ ->
-                // Respond to neutral button press
-            }
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
                 if (taskId == 0)
                     createTask()

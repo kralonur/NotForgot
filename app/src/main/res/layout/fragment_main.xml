@@ -63,7 +63,8 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/placeholderImage" />
+        app:layout_constraintTop_toBottomOf="@+id/placeholderImage"
+        tools:visibility="gone" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/placeholderTextView2"
@@ -76,7 +77,8 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/placeholderTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/placeholderTextView"
+        tools:visibility="gone" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/placeholderImage"
@@ -90,13 +92,6 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/placeholder" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="placeholderTextView2,placeholderImage,placeholderTextView"
+        app:srcCompat="@drawable/placeholder"
         tools:visibility="gone" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,12 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.notforgot.R
-import com.example.notforgot.databinding.LayoutDetailCreateBinding
+import com.example.notforgot.databinding.FragmentDetailBinding
 
 class TaskDetailFragment : Fragment() {
     private val viewModel by viewModels<TaskDetailViewModel>()
-    private lateinit var binding: LayoutDetailCreateBinding
+    private lateinit var binding: FragmentDetailBinding
     private val args by navArgs<TaskDetailFragmentArgs>()
 
     override fun onCreateView(
@@ -21,8 +20,7 @@ class TaskDetailFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        binding = LayoutDetailCreateBinding.inflate(inflater, container, false)
-        setLayout()
+        binding = FragmentDetailBinding.inflate(inflater, container, false)
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -33,8 +31,6 @@ class TaskDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         var taskId = args.taskId
-
-        binding.materialButton.text = getString(R.string.edit)
 
         viewModel.getTask(taskId).observe(viewLifecycleOwner) {
             it?.let {
@@ -56,9 +52,5 @@ class TaskDetailFragment : Fragment() {
             }
             viewModel.navigateToEditDone()
         }
-    }
-
-    private fun setLayout() {
-        binding.groupDetail.visibility = View.VISIBLE
     }
 }

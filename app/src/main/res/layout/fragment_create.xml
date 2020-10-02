@@ -41,16 +41,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
 
-    <include
-        android:id="@+id/layoutDetail"
-        layout="@layout/layout_detail"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/materialButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title" />
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/materialButton"
         android:layout_width="0dp"
@@ -63,19 +53,7 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:text="Create" />
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/groupCreate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="layoutCreate" />
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/groupDetail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="layoutDetail" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
