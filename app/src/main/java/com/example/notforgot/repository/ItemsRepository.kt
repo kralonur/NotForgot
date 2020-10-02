@@ -7,11 +7,9 @@ import com.example.notforgot.model.db.DbLog
 import com.example.notforgot.model.db.LogModel
 import com.example.notforgot.model.db.LogType
 import com.example.notforgot.model.db.items.DbCategory
-import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.RecviewItem
-import com.example.notforgot.model.remote.items.category.CategoryPost
-import com.example.notforgot.model.remote.items.task.TaskPost
+import com.example.notforgot.model.mapper.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -21,20 +19,9 @@ class ItemsRepository(context: Context) : BaseRepository() {
     private val db = AppDatabase.getInstance(context)
 
     fun fetchFromCloud() = flowCall {
-        val categories = api.getCategories().map { DbCategory(it.id, it.name) }
-        val priorities = api.getPriorities().map { DbPriority(it.id, it.name, it.color) }
-        val tasks = api.getTasks().map {
-            DbTask(
-                it.id,
-                it.title,
-                it.description,
-                it.done,
-                it.created,
-                it.deadline,
-                it.category.id,
-                it.priority.id
-            )
-        }
+        val categories = api.getCategories().map { CategoryRemoteToDbMapper.map(it) }
+        val priorities = api.getPriorities().map { PriorityRemoteToDbMapper.map(it) }
+        val tasks = api.getTasks().map { TaskRemoteToDbMapper.map(it) }
 
         db.categoryDao().insertAll(categories)
         db.priorityDao().insertAll(priorities)
@@ -75,16 +62,7 @@ class ItemsRepository(context: Context) : BaseRepository() {
     fun getTaskDomain(id: Int) = db.taskDao().getTaskDomainById(id)
 
     fun getRecviewItemList(): Flow<List<RecviewItem>> =
-        db.taskDao().getAllDomain().map { it.groupBy { item -> item.category } }.map { map ->
-            val list = ArrayList<RecviewItem>()
-            map.keys.forEach { k ->
-                list.add(RecviewItem(false, category = k))
-                map[k]?.forEach { v ->
-                    list.add(RecviewItem(true, task = v))
-                }
-            }
-            return@map list
-        }
+        db.taskDao().getAllDomain().map { TaskDomainListToRecviewItemListMapper.map(it) }
 
     fun getCategoryList() = db.categoryDao().getAll()
 
@@ -113,58 +91,26 @@ class ItemsRepository(context: Context) : BaseRepository() {
     }
 
     private suspend fun cloudPostCategory(dbCategory: DbCategory) {
-        val category = api.postCategory(CategoryPost(dbCategory.name))
-        db.categoryDao().delete(dbCategory)
-        val newCategoryId = db.categoryDao().insertCategory(DbCategory(category.id, category.name))
+        val category = api.postCategory(CategoryDbToRemotePostMapper.map(dbCategory))
+        val newCategoryId = db.categoryDao().insertCategory(CategoryRemoteToDbMapper.map(category))
 
         db.taskDao().getAllByCategoryId(dbCategory.id).forEach {
             val updatedTask = it
             updatedTask.category_id = newCategoryId.toInt()
             db.taskDao().update(updatedTask)
         }
+        db.categoryDao().delete(dbCategory)
     }
 
     private suspend fun cloudPostTask(dbTask: DbTask) {
-        val task = api.postTask(TaskPost(
-            dbTask.title,
-            dbTask.description,
-            dbTask.done,
-            dbTask.deadline,
-            dbTask.category_id,
-            dbTask.priority_id
-        ))
+        val task = api.postTask(TaskDbToRemotePostMapper.map(dbTask))
+        db.taskDao().insertTask(TaskRemoteToDbMapper.map(task))
         db.taskDao().delete(dbTask)
-        db.taskDao().insertTask(DbTask(
-            task.id,
-            task.title,
-            task.description,
-            task.done,
-            task.created,
-            task.deadline,
-            task.category.id,
-            task.priority.id
-        ))
     }
 
     private suspend fun cloudPatchTask(dbTask: DbTask) {
-        val task = api.patchTask(dbTask.id, TaskPost(
-            dbTask.title,
-            dbTask.description,
-            dbTask.done,
-            dbTask.deadline,
-            dbTask.category_id,
-            dbTask.priority_id
-        ))
-        db.taskDao().update(DbTask(
-            task.id,
-            task.title,
-            task.description,
-            task.done,
-            task.created,
-            task.deadline,
-            task.category.id,
-            task.priority.id
-        ))
+        val task = api.patchTask(dbTask.id, TaskDbToRemotePostMapper.map(dbTask))
+        db.taskDao().update(TaskRemoteToDbMapper.map(task))
     }
 
     private suspend fun cloudDeleteTask(id: Int) = api.deleteTask(id)

@@ -198,6 +198,7 @@ class TaskCreateFragment : Fragment() {
     private fun showSaveDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setMessage(resources.getString(R.string.save_q))
+            .setNeutralButton(resources.getString(R.string.cancel), null)
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
                 if (taskId == 0)
                     createTask()
