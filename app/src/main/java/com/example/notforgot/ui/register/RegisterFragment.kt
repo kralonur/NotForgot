@@ -53,8 +53,9 @@ class RegisterFragment : Fragment() {
 
     private fun navigateToMain() {
         findNavController().navigate(
-            RegisterFragmentDirections.actionRegisterFragmentToMainFragment()
+            RegisterFragmentDirections.actionRegisterFragmentToMainActivity2()
         )
+        requireActivity().finish()
     }
 
     private fun checkInputs(): Boolean {
