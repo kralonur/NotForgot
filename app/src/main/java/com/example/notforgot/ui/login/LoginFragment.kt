@@ -52,8 +52,9 @@ class LoginFragment : Fragment() {
 
     private fun navigateToMain() {
         findNavController().navigate(
-            LoginFragmentDirections.actionLoginFragmentToMainFragment()
+            LoginFragmentDirections.actionLoginFragmentToMainActivity2()
         )
+        requireActivity().finish()
     }
 
     private fun checkInputs(): Boolean {
