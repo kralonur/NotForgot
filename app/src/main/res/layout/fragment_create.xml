@@ -43,17 +43,13 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/materialButton"
+        style="@style/Widget.App.Button.Create"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_margin"
-        android:layout_marginEnd="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/default_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="Create" />
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

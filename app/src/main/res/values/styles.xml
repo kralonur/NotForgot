@@ -18,4 +18,29 @@
         <item name="android:windowBackground">@color/colorPrimary</item>
     </style>
 
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:paddingBottom">@dimen/default_padding_small</item>
+        <item name="android:paddingTop">@dimen/default_padding_small</item>
+    </style>
+
+    <style name="Widget.App.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_gravity">center</item>
+        <item name="cardElevation">@dimen/default_elevation</item>
+        <item name="android:layout_marginStart">@dimen/default_margin_medium</item>
+        <item name="android:layout_marginEnd">@dimen/default_margin_medium</item>
+    </style>
+
+    <style name="Widget.App.TextView.Title" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_marginTop">@dimen/default_margin_medium</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.App.Button.Create" parent="Widget.App.Button">
+        <item name="android:layout_marginStart">@dimen/default_margin</item>
+        <item name="android:layout_marginEnd">@dimen/default_margin</item>
+        <item name="android:layout_marginBottom">@dimen/default_margin_small</item>
+    </style>
 </resources>

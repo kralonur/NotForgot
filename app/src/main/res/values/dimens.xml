@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="default_padding">16dp</dimen>
+    <dimen name="default_padding_small">8dp</dimen>
     <dimen name="default_margin">16dp</dimen>
     <dimen name="default_margin_small">8dp</dimen>
+    <dimen name="default_margin_medium">24dp</dimen>
     <dimen name="default_margin_big">32dp</dimen>
     <dimen name="default_drawable_padding">8dp</dimen>
+    <dimen name="default_elevation">4dp</dimen>
 
     <dimen name="margin_placeholder_image">48dp</dimen>
     <dimen name="width_priority_color">8dp</dimen>
