@@ -31,6 +31,7 @@
             android:id="@+id/recView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_task"
             tools:visibility="visible" />
@@ -61,10 +62,10 @@
         android:layout_marginEnd="@dimen/default_margin_big"
         android:text="@string/you_have_no_task_todo_yet"
         android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/placeholderImage"
-        tools:visibility="gone" />
+        app:layout_constraintTop_toBottomOf="@+id/placeholderImage" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/placeholderTextView2"
@@ -75,10 +76,10 @@
         android:layout_marginEnd="@dimen/default_margin_big"
         android:text="@string/such_a_lucky_person_you_are"
         android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/placeholderTextView"
-        tools:visibility="gone" />
+        app:layout_constraintTop_toBottomOf="@+id/placeholderTextView" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/placeholderImage"
@@ -87,11 +88,11 @@
         android:layout_marginStart="@dimen/margin_placeholder_image"
         android:layout_marginEnd="@dimen/margin_placeholder_image"
         android:adjustViewBounds="true"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/placeholder"
-        tools:visibility="gone" />
+        app:srcCompat="@drawable/placeholder" />
 </androidx.constraintlayout.widget.ConstraintLayout>

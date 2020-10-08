@@ -10,92 +10,98 @@
             type="com.example.notforgot.model.domain.TaskDomain" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.App.CardView.Create"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView"
-            bindDate="@{task.task.created}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginTop="@dimen/default_margin"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="05.10.2019" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/default_margin"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:text="@{task.task.done == 1 ? @string/completed :@string/not_completed}"
-            android:textColor="@{task.task.done == 1 ? @color/taskCompleted : @color/taskNotCompleted}"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Not completed" />
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginTop="@dimen/default_margin"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:layout_marginBottom="@dimen/default_margin"
-            app:layout_constraintBottom_toTopOf="@+id/textView4"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView2">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="@{task.task.description}"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                tools:text="Нежно, аккуратно, почесать за ушком. Потом провести вдоль шёрстки, погладить пузико. Тихонько ткнуть пальцем носик, взять на ручки, провести по хвостику, потом снова по пузику. После этого двумя руками почесать за ушками и дождаться, пока не начнёт мурчать. Томное мурчание котика рождается глубоко внутри и страстно поднимается, вырываясь наружу.\n\nА потом убегать, потому что скотина кусается." />
-        </androidx.core.widget.NestedScrollView>
+                android:id="@+id/textView"
+                bindDate="@{task.task.created}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_margin"
+                android:layout_marginTop="@dimen/default_margin"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="05.10.2019" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginBottom="@dimen/default_margin"
-            android:drawableStart="@drawable/category"
-            android:drawablePadding="@dimen/default_drawable_padding"
-            android:gravity="center"
-            android:text="@{task.category.name}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="Работа" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:layout_marginEnd="@dimen/default_margin"
+                android:text="@{task.task.done == 1 ? @string/completed :@string/not_completed}"
+                android:textColor="@{task.task.done == 1 ? @color/taskCompleted : @color/taskNotCompleted}"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Not completed" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button"
-            bindPriority="@{task.priority}"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:layout_marginBottom="@dimen/default_margin"
-            android:clickable="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/default_margin"
+                android:layout_marginTop="@dimen/default_margin"
+                android:layout_marginEnd="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                app:layout_constraintBottom_toTopOf="@+id/textView4"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textView2">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView4"
-            bindDeadline="@{task.task.deadline}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginBottom="@dimen/default_margin"
-            android:drawableStart="@drawable/deadline"
-            android:drawablePadding="@dimen/default_drawable_padding"
-            android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@+id/button"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="До 21.10.2019" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@{task.task.description}"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    tools:text="Нежно, аккуратно, почесать за ушком. Потом провести вдоль шёрстки, погладить пузико. Тихонько ткнуть пальцем носик, взять на ручки, провести по хвостику, потом снова по пузику. После этого двумя руками почесать за ушками и дождаться, пока не начнёт мурчать. Томное мурчание котика рождается глубоко внутри и страстно поднимается, вырываясь наружу.\n\nА потом убегать, потому что скотина кусается." />
+            </androidx.core.widget.NestedScrollView>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:drawableStart="@drawable/category"
+                android:drawablePadding="@dimen/default_drawable_padding"
+                android:gravity="center"
+                android:text="@{task.category.name}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Работа" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button"
+                bindPriority="@{task.priority}"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:clickable="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/textView4"
+                bindDeadline="@{task.task.deadline}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:drawableStart="@drawable/deadline"
+                android:drawablePadding="@dimen/default_drawable_padding"
+                android:gravity="center"
+                app:layout_constraintBottom_toTopOf="@id/textView3"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="До 21.10.2019" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

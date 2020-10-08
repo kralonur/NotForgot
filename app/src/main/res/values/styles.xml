@@ -43,4 +43,9 @@
         <item name="android:layout_marginEnd">@dimen/default_margin</item>
         <item name="android:layout_marginBottom">@dimen/default_margin_small</item>
     </style>
+
+    <style name="Widget.App.CardView.Create" parent="Widget.MaterialComponents.CardView">
+        <item name="cardElevation">@dimen/default_elevation</item>
+        <item name="cardCornerRadius">0dp</item>
+    </style>
 </resources>
