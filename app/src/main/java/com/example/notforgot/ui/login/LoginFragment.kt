@@ -4,15 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.R
 import com.example.notforgot.databinding.FragmentLoginBinding
 import com.example.notforgot.model.domain.ResultWrapper
-import com.example.notforgot.model.remote.authentication.login.LoginResponse
-import com.example.notforgot.util.isMail
+import com.example.notforgot.util.invalidateError
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
@@ -35,13 +33,18 @@ class LoginFragment : Fragment() {
         invalidateInput()
 
         binding.buttonLogin.setOnClickListener {
-            if (checkInputs())
-                tryLogin()
+            tryLogin()
         }
 
         binding.buttonRegister.setOnClickListener {
             navigateToRegister()
         }
+
+        inputValidation()
+
+        loginResponse()
+
+        fetchResponse()
     }
 
     private fun navigateToRegister() {
@@ -57,57 +60,38 @@ class LoginFragment : Fragment() {
         requireActivity().finish()
     }
 
-    private fun checkInputs(): Boolean {
-        var returnVal = true
-
-        if (binding.mail.text.isNullOrEmpty()) {
-            binding.textFieldMail.error = getString(R.string.mail_cannot_be_empty)
-            returnVal = false
-        } else if (!binding.mail.text.toString().isMail()) {
-            binding.textFieldMail.error = getString(R.string.mail_is_not_valid)
-            returnVal = false
-        }
-
-        if (binding.password.text.isNullOrEmpty()) {
-            binding.textFieldPass.error = getString(R.string.password_cannot_be_empty)
-            returnVal = false
-        }
-
-        return returnVal
-    }
-
-    private fun invalidateInput() {
-        binding.mail.doAfterTextChanged {
-            if (binding.textFieldMail.error != null)
-                binding.textFieldMail.error = null
-        }
-
-        binding.password.doAfterTextChanged {
-            if (binding.textFieldPass.error != null)
-                binding.textFieldPass.error = null
-        }
-    }
-
-    private fun tryLogin() {
-        viewModel.login(binding.mail.text.toString(), binding.password.text.toString())
-            .observe(viewLifecycleOwner) {
+    private fun inputValidation() {
+        viewModel.inputValidation.observe(viewLifecycleOwner) { list ->
+            list.forEach {
                 when (it) {
-                    is ResultWrapper.Loading -> Timber.i("Loading")
-                    is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
-                    is ResultWrapper.ServerError -> with(requireContext()) {
-                        if (it.code == 404) this.showShortText(getString(R.string.error_user_does_not_exist))
-                        else this.showShortText(getString(R.string.error_server_error))
-                    }
-                    is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.login_unsuccessful))
-                    is ResultWrapper.Success -> doLoginSuccess(it.value)
+                    LoginValidation.EMPTY_MAIL -> binding.textFieldMail.error =
+                        getString(R.string.mail_cannot_be_empty)
+                    LoginValidation.INVALID_MAIL -> binding.textFieldMail.error =
+                        getString(R.string.mail_is_not_valid)
+                    LoginValidation.EMPTY_PASS -> binding.textFieldPass.error =
+                        getString(R.string.password_cannot_be_empty)
                 }
             }
+        }
     }
 
-    private fun doLoginSuccess(loginResponse: LoginResponse) {
-        viewModel.completeLogin(loginResponse)
+    private fun loginResponse() {
+        viewModel.loginResponse.observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Loading")
+                is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
+                is ResultWrapper.ServerError -> with(requireContext()) {
+                    if (it.code == 404) this.showShortText(getString(R.string.error_user_does_not_exist))
+                    else this.showShortText(getString(R.string.error_server_error))
+                }
+                is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.login_unsuccessful))
+                is ResultWrapper.Success -> Timber.i("Login successful")
+            }
+        }
+    }
 
-        viewModel.fetchFromCloud().observe(viewLifecycleOwner) {
+    private fun fetchResponse() {
+        viewModel.fetchResponse.observe(viewLifecycleOwner) {
             when (it) {
                 is ResultWrapper.Loading -> requireContext().showShortText(getString(R.string.data_downloading_from_cloud))
                 is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
@@ -117,10 +101,21 @@ class LoginFragment : Fragment() {
                 }
                 else -> {
                     requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))
-                    viewModel.loginUnsuccessful()
                 }
             }
         }
+    }
+
+    private fun invalidateInput() {
+        binding.mail.invalidateError(binding.textFieldMail)
+        binding.password.invalidateError(binding.textFieldPass)
+    }
+
+    private fun tryLogin() {
+        val mail = binding.mail.text.toString()
+        val pass = binding.password.text.toString()
+
+        viewModel.tryLogin(mail, pass)
     }
 
 }

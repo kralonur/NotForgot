@@ -2,6 +2,9 @@ package com.example.notforgot.util
 
 import android.content.Context
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,4 +38,11 @@ fun String.isMail(): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(
         this
     ).matches()
+}
+
+fun TextInputEditText.invalidateError(layout: TextInputLayout) {
+    this.doAfterTextChanged {
+        if (layout.error != null)
+            layout.error = null
+    }
 }

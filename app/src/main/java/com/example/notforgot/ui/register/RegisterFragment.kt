@@ -4,15 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notforgot.R
 import com.example.notforgot.databinding.FragmentRegisterBinding
 import com.example.notforgot.model.domain.ResultWrapper
-import com.example.notforgot.model.remote.authentication.register.RegisterResponse
-import com.example.notforgot.util.isMail
+import com.example.notforgot.util.invalidateError
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
@@ -39,10 +37,14 @@ class RegisterFragment : Fragment() {
         }
 
         binding.buttonRegister.setOnClickListener {
-            if (checkInputs())
-                tryRegister()
+            tryRegister()
         }
 
+        inputValidation()
+
+        registerResponse()
+
+        fetchResponse()
     }
 
     private fun navigateToLogin() {
@@ -58,79 +60,42 @@ class RegisterFragment : Fragment() {
         requireActivity().finish()
     }
 
-    private fun checkInputs(): Boolean {
-        var returnVal = true
-
-        if (binding.name.text.isNullOrEmpty()) {
-            binding.textFieldName.error = getString(R.string.name_cannot_be_empty)
-            returnVal = false
-        }
-
-        if (binding.mail.text.isNullOrEmpty()) {
-            binding.textFieldMail.error = getString(R.string.mail_cannot_be_empty)
-            returnVal = false
-        } else if (!binding.mail.text.toString().isMail()) {
-            binding.textFieldMail.error = getString(R.string.mail_is_not_valid)
-            returnVal = false
-        }
-
-        if (binding.password.text.isNullOrEmpty()) {
-            binding.textFieldPass.error = getString(R.string.password_cannot_be_empty)
-            returnVal = false
-        } else {
-            if (binding.passwordRepeat.text.toString() != binding.password.text.toString()) {
-                binding.textFieldPassRepeat.error = getString(R.string.passwords_should_be_same)
-                returnVal = false
-            }
-        }
-
-        return returnVal
-    }
-
-    private fun invalidateInput() {
-        binding.name.doAfterTextChanged {
-            if (binding.textFieldName.error != null)
-                binding.textFieldName.error = null
-        }
-
-        binding.mail.doAfterTextChanged {
-            if (binding.textFieldMail.error != null)
-                binding.textFieldMail.error = null
-        }
-
-        binding.password.doAfterTextChanged {
-            if (binding.textFieldPass.error != null)
-                binding.textFieldPass.error = null
-        }
-
-        binding.passwordRepeat.doAfterTextChanged {
-            if (binding.textFieldPassRepeat.error != null)
-                binding.textFieldPassRepeat.error = null
-        }
-    }
-
-    private fun tryRegister() {
-        viewModel.register(binding.mail.text.toString(),
-            binding.name.text.toString(),
-            binding.password.text.toString())
-            .observe(viewLifecycleOwner) {
+    private fun inputValidation() {
+        viewModel.inputValidation.observe(viewLifecycleOwner) { list ->
+            list.forEach {
                 when (it) {
-                    is ResultWrapper.Loading -> Timber.i("Loading")
-                    is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
-                    is ResultWrapper.ServerError -> with(requireContext()) {
-                        if (it.code == 400) this.showShortText(getString(R.string.error_user_exist))
-                        else this.showShortText(getString(R.string.error_server_error))
-                    }
-                    is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.register_unsuccessful))
-                    is ResultWrapper.Success -> doRegisterSuccess(it.value)
+                    RegisterValidation.EMPTY_MAIL -> binding.textFieldMail.error =
+                        getString(R.string.mail_cannot_be_empty)
+                    RegisterValidation.INVALID_MAIL -> binding.textFieldMail.error =
+                        getString(R.string.mail_is_not_valid)
+                    RegisterValidation.EMPTY_NAME -> binding.textFieldName.error =
+                        getString(R.string.name_cannot_be_empty)
+                    RegisterValidation.EMPTY_PASS -> binding.textFieldPass.error =
+                        getString(R.string.password_cannot_be_empty)
+                    RegisterValidation.NOT_SAME_PASS -> binding.textFieldPassRepeat.error =
+                        getString(R.string.passwords_should_be_same)
                 }
             }
+        }
     }
 
-    private fun doRegisterSuccess(registerResponse: RegisterResponse) {
-        viewModel.completeRegister(registerResponse)
+    private fun registerResponse() {
+        viewModel.registerResponse.observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Loading")
+                is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
+                is ResultWrapper.ServerError -> with(requireContext()) {
+                    if (it.code == 400) this.showShortText(getString(R.string.error_user_exist))
+                    else this.showShortText(getString(R.string.error_server_error))
+                }
+                is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.register_unsuccessful))
+                is ResultWrapper.Success -> Timber.i("Register successful")
+            }
+        }
+    }
 
-        viewModel.fetchFromCloud().observe(viewLifecycleOwner) {
+    private fun fetchResponse() {
+        viewModel.fetchResponse.observe(viewLifecycleOwner) {
             when (it) {
                 is ResultWrapper.Loading -> requireContext().showShortText(getString(R.string.data_downloading_from_cloud))
                 is ResultWrapper.NetworkError -> requireContext().showShortText(getString(R.string.error_network_connection))
@@ -140,10 +105,25 @@ class RegisterFragment : Fragment() {
                 }
                 else -> {
                     requireContext().showShortText(getString(R.string.fetching_data_unsuccessful))
-                    viewModel.registerUnsuccessful()
                 }
             }
         }
+    }
+
+    private fun invalidateInput() {
+        binding.name.invalidateError(binding.textFieldName)
+        binding.mail.invalidateError(binding.textFieldMail)
+        binding.password.invalidateError(binding.textFieldPass)
+        binding.passwordRepeat.invalidateError(binding.textFieldPassRepeat)
+    }
+
+    private fun tryRegister() {
+        val mail = binding.mail.text.toString()
+        val name = binding.name.text.toString()
+        val pass = binding.password.text.toString()
+        val passAgain = binding.passwordRepeat.text.toString()
+
+        viewModel.tryRegister(mail, name, pass, passAgain)
     }
 
 }
