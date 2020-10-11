@@ -43,9 +43,7 @@ class TaskCreateFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentCreateBinding.inflate(inflater, container, false)
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+        binding.toolbar.setNavigationOnClickListener { tryNavigateUp() }
         return binding.root
     }
 
@@ -68,6 +66,9 @@ class TaskCreateFragment : Fragment() {
         binding.materialButton.setOnClickListener { trySave() }
 
         binding.layoutCreate.newCategory.setOnClickListener { showCategoryDialog() }
+
+        binding.layoutCreate.title.doAfterTextChanged { title = it.toString() }
+        binding.layoutCreate.description.doAfterTextChanged { description = it.toString() }
 
         postTaskResponse()
 
@@ -100,8 +101,8 @@ class TaskCreateFragment : Fragment() {
 
     private fun trySave() {
         val validInput = viewModel.validateInput(
-            binding.layoutCreate.title.text.toString(),
-            binding.layoutCreate.description.text.toString(),
+            title,
+            description,
             deadline,
             categoryId,
             priorityId
@@ -255,9 +256,32 @@ class TaskCreateFragment : Fragment() {
             .show()
     }
 
+    private fun showDiscardDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setMessage(resources.getString(R.string.discard_changes_q))
+            .setNeutralButton(resources.getString(R.string.cancel), null)
+            .setPositiveButton(resources.getString(R.string.discard)) { _, _ ->
+                findNavController().navigateUp()
+            }
+            .show()
+    }
+
+    private fun tryNavigateUp() {
+        val isChangesMade = viewModel.isChangesMade(title,
+            description,
+            done,
+            created,
+            deadline,
+            categoryId,
+            priorityId)
+
+        if (isChangesMade) showDiscardDialog()
+        else findNavController().navigateUp()
+    }
+
     private fun createTask() {
-        viewModel.postTask(binding.layoutCreate.title.text.toString(),
-            binding.layoutCreate.description.text.toString(),
+        viewModel.postTask(title,
+            description,
             deadline,
             categoryId,
             priorityId)
@@ -265,8 +289,8 @@ class TaskCreateFragment : Fragment() {
 
     private fun updateTask() {
         viewModel.updateTask(taskId,
-            binding.layoutCreate.title.text.toString(),
-            binding.layoutCreate.description.text.toString(),
+            title,
+            description,
             done,
             created,
             deadline,

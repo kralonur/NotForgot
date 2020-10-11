@@ -75,6 +75,26 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         return validationList.isEmpty()
     }
 
+    fun isChangesMade(
+        title: String,
+        description: String,
+        done: Int,
+        created: Long,
+        deadline: Long,
+        categoryId: Int,
+        priorityId: Int,
+    ): Boolean {
+        if (title != "") return true
+        if (description != "") return true
+        if (done != 0) return true
+        if (created != 0L) return true
+        if (deadline != TaskCreateConstants.EMPTY_DEADLINE) return true
+        if (categoryId != TaskCreateConstants.EMPTY_CATEGORY) return true
+        if (priorityId != TaskCreateConstants.EMPTY_PRIORITY) return true
+
+        return false
+    }
+
     fun postTask(
         title: String,
         description: String,

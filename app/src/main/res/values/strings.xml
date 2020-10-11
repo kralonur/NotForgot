@@ -29,6 +29,8 @@
     <string name="undo">Undo</string>
     <string name="undo_delete_q">Undo delete?</string>
     <string name="s_deleted">%s deleted</string>
+    <string name="discard_changes_q">Do you want to discard changes?</string>
+    <string name="discard">Discard</string>
 
     <string name="mail_cannot_be_empty">Mail cannot be empty!</string>
     <string name="name_cannot_be_empty">Name cannot be empty!</string>
