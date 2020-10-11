@@ -16,13 +16,9 @@ import com.example.notforgot.databinding.FragmentCreateBinding
 import com.example.notforgot.databinding.LayoutCreateCategoryBinding
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
-import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.model.domain.TaskDomain
-import com.example.notforgot.util.fromEpochToMs
-import com.example.notforgot.util.fromMsToEpoch
-import com.example.notforgot.util.showShortText
-import com.example.notforgot.util.toDateString
+import com.example.notforgot.util.*
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import timber.log.Timber
@@ -32,12 +28,14 @@ class TaskCreateFragment : Fragment() {
     private lateinit var binding: FragmentCreateBinding
     private val args by navArgs<TaskCreateFragmentArgs>()
 
-    private lateinit var taskToUpdate: TaskDomain
-    private var taskId: Int = 0
-
-    private var selectedCategory: DbCategory? = null
-    private var selectedPriority: DbPriority? = null
-    private var deadline: Long? = null
+    private var taskId = TaskCreateConstants.CREATE_TASK_ID
+    private var title = ""
+    private var description = ""
+    private var done = 0
+    private var created = 0L
+    private var deadline = TaskCreateConstants.EMPTY_DEADLINE
+    private var categoryId = TaskCreateConstants.EMPTY_CATEGORY
+    private var priorityId = TaskCreateConstants.EMPTY_PRIORITY
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,40 +56,127 @@ class TaskCreateFragment : Fragment() {
 
         taskId = args.taskId
 
-        if (taskId == 0) {
-            binding.title.text = getString(R.string.create_task)
-            binding.materialButton.text = getString(R.string.create)
-        } else {
-            binding.title.text = getString(R.string.edit_task)
-            binding.materialButton.text = getString(R.string.edit)
-            viewModel.getTask(taskId).observe(viewLifecycleOwner) {
-                it?.let {
-                    updateLayoutWithTask(it)
-                    taskToUpdate = it
-                    selectedCategory = it.category
-                    selectedPriority = it.priority
-                    deadline = it.task.deadline
+        if (taskId == TaskCreateConstants.CREATE_TASK_ID) adjustFragmentForNewTask()
+        else adjustFragmentForUpdateTask()
+
+        bindCategoryList()
+
+        bindPriorityList()
+
+        binding.layoutCreate.endDate.setOnClickListener { showDatePicker() }
+
+        binding.materialButton.setOnClickListener { trySave() }
+
+        binding.layoutCreate.newCategory.setOnClickListener { showCategoryDialog() }
+
+        postTaskResponse()
+
+        updateTaskResponse()
+
+        inputValidation()
+
+    }
+
+    private fun adjustFragmentForUpdateTask() {
+        binding.title.text = getString(R.string.edit_task)
+        binding.materialButton.text = getString(R.string.edit)
+        viewModel.getTask(taskId).observe(viewLifecycleOwner) {
+            it?.let {
+                updateLayoutWithTask(it)
+            }
+        }
+    }
+
+    private fun adjustFragmentForNewTask() {
+        binding.title.text = getString(R.string.create_task)
+        binding.materialButton.text = getString(R.string.create)
+    }
+
+    private fun navigateToDetail(id: Int) {
+        findNavController().navigate(
+            TaskCreateFragmentDirections.actionTaskCreateFragmentToTaskDetailFragment(id)
+        )
+    }
+
+    private fun trySave() {
+        val validInput = viewModel.validateInput(
+            binding.layoutCreate.title.text.toString(),
+            binding.layoutCreate.description.text.toString(),
+            deadline,
+            categoryId,
+            priorityId
+        )
+
+        if (validInput)
+            showSaveDialog()
+    }
+
+    private fun inputValidation() {
+        viewModel.inputValidation.observe(viewLifecycleOwner) { list ->
+            list.forEach {
+                when (it) {
+                    TaskCreateValidation.EMPTY_TITLE -> binding.layoutCreate.textFieldTitle.error =
+                        getString(R.string.title_cannot_be_empty)
+                    TaskCreateValidation.EMPTY_DESCRIPTION -> binding.layoutCreate.textFieldDescription.error =
+                        getString(R.string.description_cannot_be_empty)
+                    TaskCreateValidation.EMPTY_CATEGORY -> binding.layoutCreate.textFieldSelectCategory.error =
+                        getString(R.string.category_cannot_be_empty)
+                    TaskCreateValidation.EMPTY_PRIORITY -> binding.layoutCreate.textFieldSelectPriority.error =
+                        getString(R.string.priority_cannot_be_empty)
+                    TaskCreateValidation.EMPTY_END_DATE -> binding.layoutCreate.textFieldEndDate.error =
+                        getString(R.string.end_date_cannot_be_empty)
                 }
             }
         }
+    }
 
-        val catList = ArrayList<DbCategory>()
-        viewModel.getCategoryList().observe(viewLifecycleOwner) {
-            it?.let {
-                catList.clear()
-                catList.addAll(it)
-                val items = it.map { item -> item.name }
-                val adapter = ArrayAdapter(requireContext(), R.layout.item_dropdown, items)
-                binding.layoutCreate.category.setAdapter(adapter)
+    private fun updateTaskResponse() {
+        viewModel.updateTaskResponse.observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Editing task...")
+                is ResultWrapper.Success -> {
+                    Timber.i("Task edited with id: $taskId")
+                    requireContext().showShortText(getString(R.string.task_edited_successfully))
+                    navigateToDetail(taskId)
+                }
+                else -> requireContext().showShortText(getString(R.string.error_while_editing_task))
             }
         }
+    }
 
-        binding.layoutCreate.category.setOnItemClickListener { _, _, position, _ ->
-            selectedCategory = catList[position]
-            if (binding.layoutCreate.textFieldSelectCategory.error != null)
-                binding.layoutCreate.textFieldSelectCategory.error = null
+    private fun postTaskResponse() {
+        viewModel.postTaskResponse.observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Creating task...")
+                is ResultWrapper.Success -> {
+                    Timber.i("Task created with id: ${it.value}")
+                    requireContext().showShortText(getString(R.string.task_created_successfully))
+                    navigateToDetail(it.value.toInt())
+                }
+                else -> requireContext().showShortText(getString(R.string.error_while_creating_task))
+            }
         }
+    }
 
+    private fun postCategoryResponse(
+        categoryBinding: LayoutCreateCategoryBinding,
+        dialog: androidx.appcompat.app.AlertDialog,
+    ) {
+        viewModel.postCategoryResponse.observe(viewLifecycleOwner) {
+            when (it) {
+                is ResultWrapper.Loading -> Timber.i("Creating category...")
+                is ResultWrapper.Success -> {
+                    Timber.i("Category created with id: ${it.value}")
+                    requireContext().showShortText(getString(R.string.category_created_successfully))
+                    dialog.dismiss()
+                }
+                else -> categoryBinding.textFieldCategory.error =
+                    getString(R.string.error_while_creating_category)
+            }
+        }
+    }
+
+    private fun bindPriorityList() {
         val prList = ArrayList<DbPriority>()
         viewModel.getPriorityList().observe(viewLifecycleOwner) {
             it?.let {
@@ -104,29 +189,29 @@ class TaskCreateFragment : Fragment() {
         }
 
         binding.layoutCreate.priority.setOnItemClickListener { _, _, position, _ ->
-            selectedPriority = prList[position]
+            priorityId = prList[position].id
             if (binding.layoutCreate.textFieldSelectPriority.error != null)
                 binding.layoutCreate.textFieldSelectPriority.error = null
         }
-
-
-        binding.layoutCreate.endDate.setOnClickListener { showDatePicker() }
-
-        binding.materialButton.setOnClickListener {
-            if (checkInput())
-                showSaveDialog()
-        }
-
-        binding.layoutCreate.newCategory.setOnClickListener {
-            showCategoryDialog()
-        }
-
     }
 
-    private fun navigateToDetail(id: Int) {
-        findNavController().navigate(
-            TaskCreateFragmentDirections.actionTaskCreateFragmentToTaskDetailFragment(id)
-        )
+    private fun bindCategoryList() {
+        val catList = ArrayList<DbCategory>()
+        viewModel.getCategoryList().observe(viewLifecycleOwner) {
+            it?.let {
+                catList.clear()
+                catList.addAll(it)
+                val items = it.map { item -> item.name }
+                val adapter = ArrayAdapter(requireContext(), R.layout.item_dropdown, items)
+                binding.layoutCreate.category.setAdapter(adapter)
+            }
+        }
+
+        binding.layoutCreate.category.setOnItemClickListener { _, _, position, _ ->
+            categoryId = catList[position].id
+            if (binding.layoutCreate.textFieldSelectCategory.error != null)
+                binding.layoutCreate.textFieldSelectCategory.error = null
+        }
     }
 
     private fun updateLayoutWithTask(task: TaskDomain) {
@@ -140,56 +225,21 @@ class TaskCreateFragment : Fragment() {
             it.textFieldSelectPriority.hint =
                 getString(R.string.current_priority, task.priority.name)
         }
-    }
 
-    private fun checkInput(): Boolean {
-        var result = true
-
-        if (binding.layoutCreate.title.text.isNullOrEmpty()) {
-            binding.layoutCreate.textFieldTitle.error = getString(R.string.title_cannot_be_empty)
-            result = false
-        }
-
-        if (binding.layoutCreate.description.text.isNullOrEmpty()) {
-            binding.layoutCreate.textFieldDescription.error =
-                getString(R.string.description_cannot_be_empty)
-            result = false
-        }
-
-        if (selectedCategory == null) {
-            binding.layoutCreate.textFieldSelectCategory.error =
-                getString(R.string.category_cannot_be_empty)
-            result = false
-        }
-
-        if (selectedPriority == null) {
-            binding.layoutCreate.textFieldSelectPriority.error =
-                getString(R.string.priority_cannot_be_empty)
-            result = false
-        }
-
-        if (deadline == null) {
-            binding.layoutCreate.textFieldEndDate.error =
-                getString(R.string.end_date_cannot_be_empty)
-            result = false
-        }
-
-        return result
+        title = task.task.title
+        description = task.task.description
+        done = task.task.done
+        created = task.task.created
+        deadline = task.task.deadline
+        categoryId = task.category.id
+        priorityId = task.priority.id
     }
 
     private fun invalidateInput() {
         binding.layoutCreate.let {
-            it.title.doAfterTextChanged { _ ->
-                if (it.textFieldTitle.error != null)
-                    it.textFieldTitle.error = null
-            }
-
-            it.description.doAfterTextChanged { _ ->
-                if (it.textFieldDescription.error != null)
-                    it.textFieldDescription.error = null
-            }
+            it.title.invalidateError(it.textFieldTitle)
+            it.description.invalidateError(it.textFieldDescription)
         }
-
     }
 
     private fun showSaveDialog() {
@@ -208,45 +258,20 @@ class TaskCreateFragment : Fragment() {
     private fun createTask() {
         viewModel.postTask(binding.layoutCreate.title.text.toString(),
             binding.layoutCreate.description.text.toString(),
-            requireNotNull(deadline),
-            requireNotNull(selectedCategory).id,
-            requireNotNull(selectedPriority).id).observe(viewLifecycleOwner) {
-            when (it) {
-                is ResultWrapper.Loading -> Timber.i("Creating task...")
-                is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.error_while_creating_task))
-                is ResultWrapper.Success -> {
-                    Timber.i("Task created with id: ${it.value}")
-                    requireContext().showShortText(getString(R.string.task_created_successfully))
-                    navigateToDetail(it.value.toInt())
-                }
-            }
-        }
+            deadline,
+            categoryId,
+            priorityId)
     }
 
     private fun updateTask() {
-        val task = DbTask(
-            taskToUpdate.task.id,
+        viewModel.updateTask(taskId,
             binding.layoutCreate.title.text.toString(),
             binding.layoutCreate.description.text.toString(),
-            taskToUpdate.task.done,
-            taskToUpdate.task.created,
-            requireNotNull(this@TaskCreateFragment.deadline),
-            requireNotNull(selectedCategory).id,
-            requireNotNull(selectedPriority).id
-        )
-
-        viewModel.updateTask(task).observe(viewLifecycleOwner) {
-            when (it) {
-                is ResultWrapper.Loading -> Timber.i("Editing task...")
-                is ResultWrapper.Error -> requireContext().showShortText(getString(R.string.error_while_editing_task))
-                is ResultWrapper.Success -> {
-                    Timber.i("Task edited with id: ${task.id}")
-                    requireContext().showShortText(getString(R.string.task_edited_successfully))
-                    navigateToDetail(taskToUpdate.task.id)
-                }
-            }
-        }
-
+            done,
+            created,
+            deadline,
+            categoryId,
+            priorityId)
     }
 
     private fun showDatePicker() {
@@ -294,17 +319,7 @@ class TaskCreateFragment : Fragment() {
         dialog: androidx.appcompat.app.AlertDialog,
     ) {
         viewModel.postCategory(categoryBinding.category.text.toString())
-            .observe(viewLifecycleOwner) {
-                when (it) {
-                    is ResultWrapper.Loading -> Timber.i("Creating category...")
-                    is ResultWrapper.Error -> categoryBinding.textFieldCategory.error =
-                        getString(R.string.error_while_creating_category)
-                    is ResultWrapper.Success -> {
-                        Timber.i("Category created with id: ${it.value}")
-                        requireContext().showShortText(getString(R.string.category_created_successfully))
-                        dialog.dismiss()
-                    }
-                }
-            }
+
+        postCategoryResponse(categoryBinding, dialog)
     }
 }
