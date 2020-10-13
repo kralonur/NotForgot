@@ -3,6 +3,11 @@ package com.example.notforgot.util
 import android.content.Context
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.text.SimpleDateFormat
@@ -45,4 +50,35 @@ fun TextInputEditText.invalidateError(layout: TextInputLayout) {
         if (layout.error != null)
             layout.error = null
     }
+}
+
+fun <T> Fragment.setNavigationResult(key: String, value: T) {
+    findNavController().previousBackStackEntry?.savedStateHandle?.set(
+        key,
+        value
+    )
+}
+
+fun <T> Fragment.getNavigationResult(
+    navBackStackEntry: NavBackStackEntry,
+    key: String,
+    onResult: (result: T) -> Unit
+) {
+
+    val observer = LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_RESUME
+            && navBackStackEntry.savedStateHandle.contains(key)
+        ) {
+            val result = navBackStackEntry.savedStateHandle.get<T>(key)
+            result?.let(onResult)
+            navBackStackEntry.savedStateHandle.remove<T>(key)
+        }
+    }
+    navBackStackEntry.lifecycle.addObserver(observer)
+
+    viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            navBackStackEntry.lifecycle.removeObserver(observer)
+        }
+    })
 }

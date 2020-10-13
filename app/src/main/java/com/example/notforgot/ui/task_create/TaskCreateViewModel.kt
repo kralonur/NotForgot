@@ -2,7 +2,6 @@ package com.example.notforgot.ui.task_create
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.repository.ItemsRepository
@@ -24,10 +23,6 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
     private val _postTaskResponse = MutableLiveData<ResultWrapper<Long>>()
     val postTaskResponse: LiveData<ResultWrapper<Long>>
         get() = _postTaskResponse
-
-    private val _postCategoryResponse = MutableLiveData<ResultWrapper<Long>>()
-    val postCategoryResponse: LiveData<ResultWrapper<Long>>
-        get() = _postCategoryResponse
 
     private val _updateTaskResponse = MutableLiveData<ResultWrapper<Unit>>()
     val updateTaskResponse: LiveData<ResultWrapper<Unit>>
@@ -102,11 +97,13 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         categoryId: Int,
         priorityId: Int,
     ) {
-        val task = createDbTask(title = title,
+        val task = createDbTask(
+            title = title,
             description = description,
             deadline = deadline,
             categoryId = categoryId,
-            priorityId = priorityId)
+            priorityId = priorityId
+        )
 
         viewModelScope.launch {
             withContext(Dispatchers.IO + viewModelScope.coroutineContext) {
@@ -145,14 +142,16 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         categoryId: Int,
         priorityId: Int,
     ) {
-        val task = createDbTask(taskId,
+        val task = createDbTask(
+            taskId,
             title,
             description,
             done,
             created,
             deadline,
             categoryId,
-            priorityId)
+            priorityId
+        )
 
         viewModelScope.launch {
             withContext(Dispatchers.IO + viewModelScope.coroutineContext) {
@@ -161,16 +160,8 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun postCategory(name: String) {
-        val category = createDbCategory(name)
-        viewModelScope.launch {
-            withContext(Dispatchers.IO + viewModelScope.coroutineContext) {
-                repo.addCategory(category).collect { _postCategoryResponse.postValue(it) }
-            }
-        }
-    }
+    fun getCategoryById(categoryId: Int) = repo.getFlowCategoryById(categoryId)
+        .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
-    private fun createDbCategory(name: String) =
-        DbCategory(SharedPref.getCategoryId(getApplication<Application>().applicationContext), name)
 
 }

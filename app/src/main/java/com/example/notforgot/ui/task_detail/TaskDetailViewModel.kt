@@ -13,6 +13,7 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
     private val repo = ItemsRepository(getApplication<Application>().applicationContext)
 
     fun getTask(task_id: Int) = repo.getTaskDomain(task_id).catch { Timber.e(it) }.asLiveData(
-        Dispatchers.IO + viewModelScope.coroutineContext)
+        Dispatchers.IO + viewModelScope.coroutineContext
+    )
 
 }

@@ -1,6 +1,5 @@
 package com.example.notforgot.ui.task_create
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.notforgot.R
 import com.example.notforgot.databinding.FragmentCreateBinding
-import com.example.notforgot.databinding.LayoutCreateCategoryBinding
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.domain.ResultWrapper
@@ -159,24 +157,6 @@ class TaskCreateFragment : Fragment() {
         }
     }
 
-    private fun postCategoryResponse(
-        categoryBinding: LayoutCreateCategoryBinding,
-        dialog: androidx.appcompat.app.AlertDialog,
-    ) {
-        viewModel.postCategoryResponse.observe(viewLifecycleOwner) {
-            when (it) {
-                is ResultWrapper.Loading -> Timber.i("Creating category...")
-                is ResultWrapper.Success -> {
-                    Timber.i("Category created with id: ${it.value}")
-                    requireContext().showShortText(getString(R.string.category_created_successfully))
-                    dialog.dismiss()
-                }
-                else -> categoryBinding.textFieldCategory.error =
-                    getString(R.string.error_while_creating_category)
-            }
-        }
-    }
-
     private fun bindPriorityList() {
         val prList = ArrayList<DbPriority>()
         viewModel.getPriorityList().observe(viewLifecycleOwner) {
@@ -219,12 +199,13 @@ class TaskCreateFragment : Fragment() {
         binding.layoutCreate.let {
             it.title.setText(task.task.title)
             it.description.setText(task.task.description)
-            it.endDate.setText(task.task.deadline.fromEpochToMs()
-                .toDateString())
-            it.textFieldSelectCategory.hint =
-                getString(R.string.current_category, task.category.name)
-            it.textFieldSelectPriority.hint =
-                getString(R.string.current_priority, task.priority.name)
+            it.endDate.setText(
+                task.task.deadline.fromEpochToMs()
+                    .toDateString()
+            )
+            it.category.setText(task.category.name, false)
+            it.priority.setText(task.priority.name, false)
+
         }
 
         title = task.task.title
@@ -267,35 +248,41 @@ class TaskCreateFragment : Fragment() {
     }
 
     private fun tryNavigateUp() {
-        val isChangesMade = viewModel.isChangesMade(title,
-            description,
-            done,
-            created,
-            deadline,
-            categoryId,
-            priorityId)
-
-        if (isChangesMade) showDiscardDialog()
-        else findNavController().navigateUp()
-    }
-
-    private fun createTask() {
-        viewModel.postTask(title,
-            description,
-            deadline,
-            categoryId,
-            priorityId)
-    }
-
-    private fun updateTask() {
-        viewModel.updateTask(taskId,
+        val isChangesMade = viewModel.isChangesMade(
             title,
             description,
             done,
             created,
             deadline,
             categoryId,
-            priorityId)
+            priorityId
+        )
+
+        if (isChangesMade) showDiscardDialog()
+        else findNavController().navigateUp()
+    }
+
+    private fun createTask() {
+        viewModel.postTask(
+            title,
+            description,
+            deadline,
+            categoryId,
+            priorityId
+        )
+    }
+
+    private fun updateTask() {
+        viewModel.updateTask(
+            taskId,
+            title,
+            description,
+            done,
+            created,
+            deadline,
+            categoryId,
+            priorityId
+        )
     }
 
     private fun showDatePicker() {
@@ -314,36 +301,20 @@ class TaskCreateFragment : Fragment() {
     }
 
     private fun showCategoryDialog() {
-        val categoryBinding = LayoutCreateCategoryBinding.inflate(layoutInflater)
+        findNavController().navigate(
+            TaskCreateFragmentDirections.actionTaskCreateFragmentToCategoryDialog()
+        )
 
-        categoryBinding.category.doAfterTextChanged {
-            if (categoryBinding.textFieldCategory.error != null)
-                categoryBinding.textFieldCategory.error = null
-        }
+        getCategoryDialogResult()
+    }
 
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle(resources.getString(R.string.create_category))
-            .setView(categoryBinding.root)
-            .setNegativeButton(resources.getString(R.string.cancel), null)
-            .setPositiveButton(resources.getString(R.string.yes), null)
-            .show()
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            if (categoryBinding.category.text.isNullOrEmpty()) {
-                categoryBinding.textFieldCategory.error =
-                    getString(R.string.category_name_cannot_be_empty)
-            } else {
-                createCategory(categoryBinding, dialog)
+    private fun getCategoryDialogResult() {
+        getNavigationResult<Long>(findNavController().previousBackStackEntry!!, "category") {
+            viewModel.getCategoryById(it.toInt()).observe(viewLifecycleOwner) { category ->
+                binding.layoutCreate.category.setText(category.name, false)
+                categoryId = category.id
             }
         }
     }
 
-    private fun createCategory(
-        categoryBinding: LayoutCreateCategoryBinding,
-        dialog: androidx.appcompat.app.AlertDialog,
-    ) {
-        viewModel.postCategory(categoryBinding.category.text.toString())
-
-        postCategoryResponse(categoryBinding, dialog)
-    }
 }

@@ -68,6 +68,8 @@ class ItemsRepository(context: Context) : BaseRepository() {
 
     fun getPriorityList() = db.priorityDao().getAll()
 
+    fun getFlowCategoryById(id: Int) = db.categoryDao().getFlowCategoryById(id)
+
 //CLOUD
 
     private suspend fun uploadCategories() {
@@ -137,10 +139,14 @@ class ItemsRepository(context: Context) : BaseRepository() {
                 LogType.INSERT -> db.logDao().delete(taskLog)
                 LogType.UPDATE -> {
                     db.logDao().delete(taskLog)
-                    db.logDao().insert(DbLog(0,
-                        LogType.DELETE,
-                        LogModel.TASK,
-                        id))
+                    db.logDao().insert(
+                        DbLog(
+                            0,
+                            LogType.DELETE,
+                            LogModel.TASK,
+                            id
+                        )
+                    )
                 }
             }
         } else {

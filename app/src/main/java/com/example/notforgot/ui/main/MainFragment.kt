@@ -65,7 +65,8 @@ class MainFragment : Fragment(), TaskClickListener {
                             viewModel.deleteTask(deletedItem.task).observe(viewLifecycleOwner) {
                                 when (it) {
                                     is ResultWrapper.Success -> requireContext().showShortText(
-                                        getString(R.string.s_deleted, deletedItem.task.title))
+                                        getString(R.string.s_deleted, deletedItem.task.title)
+                                    )
                                 }
                             }
                     }

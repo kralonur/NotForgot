@@ -29,6 +29,9 @@
             app:launchSingleTop="true"
             app:popUpTo="@id/taskCreateFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_taskCreateFragment_to_categoryDialog"
+            app:destination="@id/categoryDialog" />
     </fragment>
     <fragment
         android:id="@+id/taskDetailFragment"
@@ -41,4 +44,8 @@
             android:id="@+id/action_taskDetailFragment_to_taskCreateFragment"
             app:destination="@id/taskCreateFragment" />
     </fragment>
+    <dialog
+        android:id="@+id/categoryDialog"
+        android:name="com.example.notforgot.ui.task_create.CategoryDialog"
+        android:label="CategoryDialog" />
 </navigation>

@@ -15,6 +15,9 @@ interface CategoryDao {
     @Query("SELECT * FROM category WHERE id = (:categoryId)")
     suspend fun getCategoryById(categoryId: Int): DbCategory
 
+    @Query("SELECT * FROM category WHERE id = (:categoryId)")
+    fun getFlowCategoryById(categoryId: Int): Flow<DbCategory>
+
     @Insert
     suspend fun insertCategory(category: DbCategory): Long
 
