@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.notforgot.R
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.model.remote.authentication.register.Register
 import com.example.notforgot.model.remote.authentication.register.RegisterResponse
@@ -20,10 +21,6 @@ import kotlinx.coroutines.withContext
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {
     private val authRepo = AuthRepository(getApplication<Application>().applicationContext)
     private val itemsRepo = ItemsRepository(getApplication<Application>().applicationContext)
-
-    private val _inputValidation = MutableLiveData<List<RegisterValidation>>()
-    val inputValidation: LiveData<List<RegisterValidation>>
-        get() = _inputValidation
 
     private val _fetchResponse = MutableLiveData<ResultWrapper<Unit>>()
     val fetchResponse: LiveData<ResultWrapper<Unit>>
@@ -54,8 +51,9 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         name: String,
         pass: String,
         passRepeat: String,
+        validation: RegisterValidation
     ) {
-        if (validateInput(mail, name, pass, passRepeat)) register(mail, name, pass)
+        if (validateInput(mail, name, pass, passRepeat, validation)) register(mail, name, pass)
     }
 
     private fun validateInput(
@@ -63,29 +61,38 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         name: String,
         pass: String,
         passRepeat: String,
+        validation: RegisterValidation
     ): Boolean {
-        val validationList = ArrayList<RegisterValidation>()
+        var valid = true
 
         if (name.isEmpty() || name.isBlank()) {
-            validationList.add(RegisterValidation.EMPTY_NAME)
+            valid = false
+            validation.validateName(getApplication<Application>().applicationContext.getString(R.string.name_cannot_be_empty))
         }
 
         if (mail.isEmpty() || mail.isBlank()) {
-            validationList.add(RegisterValidation.EMPTY_MAIL)
+            valid = false
+            validation.validateEmail(getApplication<Application>().applicationContext.getString(R.string.mail_cannot_be_empty))
         } else if (!mail.isMail()) {
-            validationList.add(RegisterValidation.INVALID_MAIL)
+            valid = false
+            validation.validateEmail(getApplication<Application>().applicationContext.getString(R.string.mail_is_not_valid))
         }
 
         if (pass.isEmpty() || pass.isBlank()) {
-            validationList.add(RegisterValidation.EMPTY_PASS)
+            valid = false
+            validation.validatePassword(getApplication<Application>().applicationContext.getString(R.string.password_cannot_be_empty))
         } else {
             if (pass != passRepeat) {
-                validationList.add(RegisterValidation.NOT_SAME_PASS)
+                valid = false
+                validation.validatePassword(
+                    getApplication<Application>().applicationContext.getString(
+                        R.string.passwords_should_be_same
+                    )
+                )
             }
         }
 
-        _inputValidation.postValue(validationList)
-        return validationList.isEmpty()
+        return valid
     }
 
     private fun registerSuccessful(registerResponse: RegisterResponse) {

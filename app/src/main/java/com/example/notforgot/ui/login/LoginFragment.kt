@@ -14,7 +14,7 @@ import com.example.notforgot.util.invalidateError
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(), LoginValidation {
     private val viewModel by viewModels<LoginViewModel>()
     private lateinit var binding: FragmentLoginBinding
 
@@ -40,11 +40,17 @@ class LoginFragment : Fragment() {
             navigateToRegister()
         }
 
-        inputValidation()
-
         loginResponse()
 
         fetchResponse()
+    }
+
+    override fun validateEmail(validationMessage: String) {
+        binding.textFieldMail.error = validationMessage
+    }
+
+    override fun validatePassword(validationMessage: String) {
+        binding.textFieldPass.error = validationMessage
     }
 
     private fun navigateToRegister() {
@@ -58,21 +64,6 @@ class LoginFragment : Fragment() {
             LoginFragmentDirections.actionLoginFragmentToMainActivity2()
         )
         requireActivity().finish()
-    }
-
-    private fun inputValidation() {
-        viewModel.inputValidation.observe(viewLifecycleOwner) { list ->
-            list.forEach {
-                when (it) {
-                    LoginValidation.EMPTY_MAIL -> binding.textFieldMail.error =
-                        getString(R.string.mail_cannot_be_empty)
-                    LoginValidation.INVALID_MAIL -> binding.textFieldMail.error =
-                        getString(R.string.mail_is_not_valid)
-                    LoginValidation.EMPTY_PASS -> binding.textFieldPass.error =
-                        getString(R.string.password_cannot_be_empty)
-                }
-            }
-        }
     }
 
     private fun loginResponse() {
@@ -115,7 +106,7 @@ class LoginFragment : Fragment() {
         val mail = binding.mail.text.toString()
         val pass = binding.password.text.toString()
 
-        viewModel.tryLogin(mail, pass)
+        viewModel.tryLogin(mail, pass, this)
     }
 
 }

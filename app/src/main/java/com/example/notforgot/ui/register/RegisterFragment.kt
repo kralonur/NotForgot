@@ -14,7 +14,7 @@ import com.example.notforgot.util.invalidateError
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
-class RegisterFragment : Fragment() {
+class RegisterFragment : Fragment(), RegisterValidation {
     private val viewModel by viewModels<RegisterViewModel>()
     private lateinit var binding: FragmentRegisterBinding
 
@@ -40,11 +40,21 @@ class RegisterFragment : Fragment() {
             tryRegister()
         }
 
-        inputValidation()
-
         registerResponse()
 
         fetchResponse()
+    }
+
+    override fun validateEmail(validationMessage: String) {
+        binding.textFieldMail.error = validationMessage
+    }
+
+    override fun validatePassword(validationMessage: String) {
+        binding.textFieldPass.error = validationMessage
+    }
+
+    override fun validateName(validationMessage: String) {
+        binding.textFieldName.error = validationMessage
     }
 
     private fun navigateToLogin() {
@@ -58,25 +68,6 @@ class RegisterFragment : Fragment() {
             RegisterFragmentDirections.actionRegisterFragmentToMainActivity2()
         )
         requireActivity().finish()
-    }
-
-    private fun inputValidation() {
-        viewModel.inputValidation.observe(viewLifecycleOwner) { list ->
-            list.forEach {
-                when (it) {
-                    RegisterValidation.EMPTY_MAIL -> binding.textFieldMail.error =
-                        getString(R.string.mail_cannot_be_empty)
-                    RegisterValidation.INVALID_MAIL -> binding.textFieldMail.error =
-                        getString(R.string.mail_is_not_valid)
-                    RegisterValidation.EMPTY_NAME -> binding.textFieldName.error =
-                        getString(R.string.name_cannot_be_empty)
-                    RegisterValidation.EMPTY_PASS -> binding.textFieldPass.error =
-                        getString(R.string.password_cannot_be_empty)
-                    RegisterValidation.NOT_SAME_PASS -> binding.textFieldPassRepeat.error =
-                        getString(R.string.passwords_should_be_same)
-                }
-            }
-        }
     }
 
     private fun registerResponse() {
@@ -123,7 +114,7 @@ class RegisterFragment : Fragment() {
         val pass = binding.password.text.toString()
         val passAgain = binding.passwordRepeat.text.toString()
 
-        viewModel.tryRegister(mail, name, pass, passAgain)
+        viewModel.tryRegister(mail, name, pass, passAgain, this)
     }
 
 }

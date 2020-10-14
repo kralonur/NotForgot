@@ -2,6 +2,7 @@ package com.example.notforgot.ui.task_create
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.example.notforgot.R
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.repository.ItemsRepository
@@ -15,10 +16,6 @@ import timber.log.Timber
 
 class TaskCreateViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = ItemsRepository(getApplication<Application>().applicationContext)
-
-    private val _inputValidation = MutableLiveData<List<TaskCreateValidation>>()
-    val inputValidation: LiveData<List<TaskCreateValidation>>
-        get() = _inputValidation
 
     private val _postTaskResponse = MutableLiveData<ResultWrapper<Long>>()
     val postTaskResponse: LiveData<ResultWrapper<Long>>
@@ -43,31 +40,40 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         deadline: Long,
         categoryId: Int,
         priorityId: Int,
+        validation: TaskCreateValidation
     ): Boolean {
-        val validationList = ArrayList<TaskCreateValidation>()
+        var valid = true
 
         if (title.isEmpty() || title.isBlank()) {
-            validationList.add(TaskCreateValidation.EMPTY_TITLE)
+            valid = false
+            validation.validateTitle(getApplication<Application>().applicationContext.getString(R.string.title_cannot_be_empty))
         }
 
         if (description.isEmpty() || description.isBlank()) {
-            validationList.add(TaskCreateValidation.EMPTY_DESCRIPTION)
+            valid = false
+            validation.validateDescription(
+                getApplication<Application>().applicationContext.getString(
+                    R.string.description_cannot_be_empty
+                )
+            )
         }
 
         if (deadline == TaskCreateConstants.EMPTY_DEADLINE) {
-            validationList.add(TaskCreateValidation.EMPTY_END_DATE)
+            valid = false
+            validation.validateEndDate(getApplication<Application>().applicationContext.getString(R.string.end_date_cannot_be_empty))
         }
 
         if (categoryId == TaskCreateConstants.EMPTY_CATEGORY) {
-            validationList.add(TaskCreateValidation.EMPTY_CATEGORY)
+            valid = false
+            validation.validateCategory(getApplication<Application>().applicationContext.getString(R.string.category_cannot_be_empty))
         }
 
         if (priorityId == TaskCreateConstants.EMPTY_PRIORITY) {
-            validationList.add(TaskCreateValidation.EMPTY_PRIORITY)
+            valid = false
+            validation.validatePriority(getApplication<Application>().applicationContext.getString(R.string.priority_cannot_be_empty))
         }
 
-        _inputValidation.postValue(validationList)
-        return validationList.isEmpty()
+        return valid
     }
 
     fun isChangesMade(

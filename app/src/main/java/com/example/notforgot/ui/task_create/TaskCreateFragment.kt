@@ -21,7 +21,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import timber.log.Timber
 
-class TaskCreateFragment : Fragment() {
+class TaskCreateFragment : Fragment(), TaskCreateValidation {
     private val viewModel by viewModels<TaskCreateViewModel>()
     private lateinit var binding: FragmentCreateBinding
     private val args by navArgs<TaskCreateFragmentArgs>()
@@ -72,8 +72,26 @@ class TaskCreateFragment : Fragment() {
 
         updateTaskResponse()
 
-        inputValidation()
+    }
 
+    override fun validateTitle(validationMessage: String) {
+        binding.layoutCreate.textFieldTitle.error = validationMessage
+    }
+
+    override fun validateDescription(validationMessage: String) {
+        binding.layoutCreate.textFieldDescription.error = validationMessage
+    }
+
+    override fun validateCategory(validationMessage: String) {
+        binding.layoutCreate.textFieldSelectCategory.error = validationMessage
+    }
+
+    override fun validatePriority(validationMessage: String) {
+        binding.layoutCreate.textFieldSelectPriority.error = validationMessage
+    }
+
+    override fun validateEndDate(validationMessage: String) {
+        binding.layoutCreate.textFieldEndDate.error = validationMessage
     }
 
     private fun adjustFragmentForUpdateTask() {
@@ -103,30 +121,12 @@ class TaskCreateFragment : Fragment() {
             description,
             deadline,
             categoryId,
-            priorityId
+            priorityId,
+            this
         )
 
         if (validInput)
             showSaveDialog()
-    }
-
-    private fun inputValidation() {
-        viewModel.inputValidation.observe(viewLifecycleOwner) { list ->
-            list.forEach {
-                when (it) {
-                    TaskCreateValidation.EMPTY_TITLE -> binding.layoutCreate.textFieldTitle.error =
-                        getString(R.string.title_cannot_be_empty)
-                    TaskCreateValidation.EMPTY_DESCRIPTION -> binding.layoutCreate.textFieldDescription.error =
-                        getString(R.string.description_cannot_be_empty)
-                    TaskCreateValidation.EMPTY_CATEGORY -> binding.layoutCreate.textFieldSelectCategory.error =
-                        getString(R.string.category_cannot_be_empty)
-                    TaskCreateValidation.EMPTY_PRIORITY -> binding.layoutCreate.textFieldSelectPriority.error =
-                        getString(R.string.priority_cannot_be_empty)
-                    TaskCreateValidation.EMPTY_END_DATE -> binding.layoutCreate.textFieldEndDate.error =
-                        getString(R.string.end_date_cannot_be_empty)
-                }
-            }
-        }
     }
 
     private fun updateTaskResponse() {

@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.notforgot.R
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.model.remote.authentication.login.Login
 import com.example.notforgot.model.remote.authentication.login.LoginResponse
@@ -20,10 +21,6 @@ import kotlinx.coroutines.withContext
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val authRepo = AuthRepository(getApplication<Application>().applicationContext)
     private val itemsRepo = ItemsRepository(getApplication<Application>().applicationContext)
-
-    private val _inputValidation = MutableLiveData<List<LoginValidation>>()
-    val inputValidation: LiveData<List<LoginValidation>>
-        get() = _inputValidation
 
     private val _fetchResponse = MutableLiveData<ResultWrapper<Unit>>()
     val fetchResponse: LiveData<ResultWrapper<Unit>>
@@ -46,28 +43,31 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun tryLogin(mail: String, pass: String) {
-        if (validateInput(mail, pass)) login(mail, pass)
+    fun tryLogin(mail: String, pass: String, validation: LoginValidation) {
+        if (validateInput(mail, pass, validation)) login(mail, pass)
     }
 
     private fun validateInput(
         mail: String,
         pass: String,
+        validation: LoginValidation
     ): Boolean {
-        val validationList = ArrayList<LoginValidation>()
+        var valid = true
 
         if (mail.isEmpty() || mail.isBlank()) {
-            validationList.add(LoginValidation.EMPTY_MAIL)
+            valid = false
+            validation.validateEmail(getApplication<Application>().applicationContext.getString(R.string.mail_cannot_be_empty))
         } else if (!mail.isMail()) {
-            validationList.add(LoginValidation.INVALID_MAIL)
+            valid = false
+            validation.validateEmail(getApplication<Application>().applicationContext.getString(R.string.mail_is_not_valid))
         }
 
         if (pass.isEmpty() || pass.isBlank()) {
-            validationList.add(LoginValidation.EMPTY_PASS)
+            valid = false
+            validation.validatePassword(getApplication<Application>().applicationContext.getString(R.string.password_cannot_be_empty))
         }
 
-        _inputValidation.postValue(validationList)
-        return validationList.isEmpty()
+        return valid
     }
 
     private fun loginSuccessful(loginResponse: LoginResponse) {

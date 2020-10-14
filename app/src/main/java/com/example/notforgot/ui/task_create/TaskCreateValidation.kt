@@ -1,9 +1,9 @@
 package com.example.notforgot.ui.task_create
 
-enum class TaskCreateValidation {
-    EMPTY_TITLE,
-    EMPTY_DESCRIPTION,
-    EMPTY_CATEGORY,
-    EMPTY_PRIORITY,
-    EMPTY_END_DATE
+interface TaskCreateValidation {
+    fun validateTitle(validationMessage: String)
+    fun validateDescription(validationMessage: String)
+    fun validateCategory(validationMessage: String)
+    fun validatePriority(validationMessage: String)
+    fun validateEndDate(validationMessage: String)
 }

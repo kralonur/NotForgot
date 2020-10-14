@@ -1,4 +1,4 @@
-package com.example.notforgot.ui.task_create
+package com.example.notforgot.ui.task_create.category
 
 import android.app.Dialog
 import android.os.Bundle
@@ -14,7 +14,7 @@ import com.example.notforgot.util.showShortText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import timber.log.Timber
 
-class CategoryDialog : DialogFragment() {
+class CategoryDialog : DialogFragment(), CategoryValidation {
     private val viewModel by viewModels<CategoryViewModel>()
     private lateinit var binding: LayoutCreateCategoryBinding
     private lateinit var dialog: AlertDialog
@@ -37,12 +37,7 @@ class CategoryDialog : DialogFragment() {
             binding.category.invalidateError(binding.textFieldCategory)
 
             dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                if (binding.category.text.isNullOrEmpty()) {
-                    binding.textFieldCategory.error =
-                        getString(R.string.category_name_cannot_be_empty)
-                } else {
-                    createCategory()
-                }
+                createCategory()
             }
 
         }
@@ -50,8 +45,12 @@ class CategoryDialog : DialogFragment() {
         return dialog
     }
 
+    override fun validateCategoryName(validationMessage: String) {
+        binding.textFieldCategory.error = validationMessage
+    }
+
     private fun createCategory() {
-        viewModel.postCategory(binding.category.text.toString())
+        viewModel.tryPostCategory(binding.category.text.toString(), this)
 
         postCategoryResponse()
     }

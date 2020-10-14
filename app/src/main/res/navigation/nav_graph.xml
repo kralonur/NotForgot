@@ -46,6 +46,6 @@
     </fragment>
     <dialog
         android:id="@+id/categoryDialog"
-        android:name="com.example.notforgot.ui.task_create.CategoryDialog"
+        android:name="com.example.notforgot.ui.task_create.category.CategoryDialog"
         android:label="CategoryDialog" />
 </navigation>

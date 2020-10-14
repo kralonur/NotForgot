@@ -1,7 +1,6 @@
 package com.example.notforgot.ui.login
 
-enum class LoginValidation {
-    EMPTY_MAIL,
-    INVALID_MAIL,
-    EMPTY_PASS
+interface LoginValidation {
+    fun validateEmail(validationMessage: String)
+    fun validatePassword(validationMessage: String)
 }
