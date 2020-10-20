@@ -11,6 +11,7 @@ import com.example.notforgot.model.remote.authentication.register.Register
 import com.example.notforgot.model.remote.authentication.register.RegisterResponse
 import com.example.notforgot.repository.AuthRepository
 import com.example.notforgot.repository.ItemsRepository
+import com.example.notforgot.util.getNonNullValue
 import com.example.notforgot.util.isMail
 import com.example.notforgot.util.writeToken
 import kotlinx.coroutines.Dispatchers
@@ -30,12 +31,19 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     val registerResponse: LiveData<ResultWrapper<RegisterResponse>>
         get() = _registerResponse
 
-    private fun register(
-        mail: String,
-        name: String,
-        pass: String,
-    ) {
-        val data = Register(mail, name, pass)
+    val email = MutableLiveData("")
+    val name = MutableLiveData("")
+    val password = MutableLiveData("")
+    val passwordRepeat = MutableLiveData("")
+
+    val emailError = MutableLiveData("")
+    val nameError = MutableLiveData("")
+    val passwordError = MutableLiveData("")
+    val passwordRepeatError = MutableLiveData("")
+
+    private fun register() {
+        val data =
+            Register(email.getNonNullValue(), name.getNonNullValue(), password.getNonNullValue())
         viewModelScope.launch {
             withContext(Dispatchers.IO + viewModelScope.coroutineContext) {
                 authRepo.register(data).collect {
@@ -46,53 +54,58 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun tryRegister(
-        mail: String,
-        name: String,
-        pass: String,
-        passRepeat: String,
-        validation: RegisterValidation
-    ) {
-        if (validateInput(mail, name, pass, passRepeat, validation)) register(mail, name, pass)
+    fun tryRegister() {
+        if (validate()) register()
     }
 
-    private fun validateInput(
-        mail: String,
-        name: String,
-        pass: String,
-        passRepeat: String,
-        validation: RegisterValidation
-    ): Boolean {
-        var valid = true
+    private fun validate(): Boolean {
+        val mailValidation = validateEmail(email.getNonNullValue())
+        val nameValidation = validateName(name.getNonNullValue())
+        val passValidation = validatePass(password.getNonNullValue())
+        val passRepeatValidation =
+            validatePassRepeat(password.getNonNullValue(), passwordRepeat.getNonNullValue())
 
-        if (name.isEmpty() || name.isBlank()) {
-            valid = false
-            validation.validateName(getApplication<Application>().applicationContext.getString(R.string.name_cannot_be_empty))
-        }
+        emailError.postValue(mailValidation)
+        nameError.postValue(nameValidation)
+        passwordError.postValue(passValidation)
+        passwordRepeatError.postValue(passRepeatValidation)
 
+        return mailValidation.isEmpty() && nameValidation.isEmpty()
+                && passValidation.isEmpty() && passRepeatValidation.isEmpty()
+    }
+
+    private fun validateEmail(mail: String): String {
         if (mail.isEmpty() || mail.isBlank()) {
-            valid = false
-            validation.validateEmail(getApplication<Application>().applicationContext.getString(R.string.mail_cannot_be_empty))
+            return getApplication<Application>().applicationContext.getString(R.string.mail_cannot_be_empty)
         } else if (!mail.isMail()) {
-            valid = false
-            validation.validateEmail(getApplication<Application>().applicationContext.getString(R.string.mail_is_not_valid))
+            return getApplication<Application>().applicationContext.getString(R.string.mail_is_not_valid)
         }
 
+        return ""
+    }
+
+    private fun validateName(name: String): String {
+        if (name.isEmpty() || name.isBlank()) {
+            return getApplication<Application>().applicationContext.getString(R.string.name_cannot_be_empty)
+        }
+
+        return ""
+    }
+
+    private fun validatePass(pass: String): String {
         if (pass.isEmpty() || pass.isBlank()) {
-            valid = false
-            validation.validatePassword(getApplication<Application>().applicationContext.getString(R.string.password_cannot_be_empty))
-        } else {
-            if (pass != passRepeat) {
-                valid = false
-                validation.validatePassword(
-                    getApplication<Application>().applicationContext.getString(
-                        R.string.passwords_should_be_same
-                    )
-                )
-            }
+            return getApplication<Application>().applicationContext.getString(R.string.password_cannot_be_empty)
         }
 
-        return valid
+        return ""
+    }
+
+    private fun validatePassRepeat(pass: String, passRepeat: String): String {
+        if (pass != passRepeat) {
+            return getApplication<Application>().applicationContext.getString(R.string.passwords_should_be_same)
+        }
+
+        return ""
     }
 
     private fun registerSuccessful(registerResponse: RegisterResponse) {
