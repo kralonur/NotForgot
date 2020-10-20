@@ -9,10 +9,7 @@ import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.model.domain.TaskDomain
 import com.example.notforgot.repository.ItemsRepository
-import com.example.notforgot.util.SharedPref
-import com.example.notforgot.util.fromEpochToMs
-import com.example.notforgot.util.getNonNullValue
-import com.example.notforgot.util.toDateString
+import com.example.notforgot.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -98,7 +95,7 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
     private fun validateDescription(description: String): String {
         return if (description.isEmpty() || description.isBlank())
             getApplication<Application>().applicationContext.getString(R.string.description_cannot_be_empty)
-        else if (description.length > 120)
+        else if (description.length > Constants.MAX_DESCRIPTION_LENGTH)
             getApplication<Application>().applicationContext.getString(R.string.cannot_exceed_maximum_character_limit)
         else ""
     }

@@ -9,6 +9,7 @@ import com.example.notforgot.R
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.repository.ItemsRepository
+import com.example.notforgot.util.Constants
 import com.example.notforgot.util.SharedPref
 import com.example.notforgot.util.getNonNullValue
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +52,7 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     private fun validateCategoryName(name: String): String {
         return if (name.isEmpty() || name.isBlank())
             getApplication<Application>().applicationContext.getString(R.string.category_name_cannot_be_empty)
-        else if (name.length > 120)
+        else if (name.length > Constants.MAX_CATEGORY_NAME_LENGTH)
             getApplication<Application>().applicationContext.getString(R.string.cannot_exceed_maximum_character_limit)
         else ""
     }
