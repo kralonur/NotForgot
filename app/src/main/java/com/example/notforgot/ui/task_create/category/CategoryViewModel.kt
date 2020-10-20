@@ -10,6 +10,7 @@ import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.domain.ResultWrapper
 import com.example.notforgot.repository.ItemsRepository
 import com.example.notforgot.util.SharedPref
+import com.example.notforgot.util.getNonNullValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -22,12 +23,12 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     val postCategoryResponse: LiveData<ResultWrapper<Long>>
         get() = _postCategoryResponse
 
-    fun tryPostCategory(name: String, validation: CategoryValidation) {
-        if (validateInput(name, validation)) postCategory(name)
-    }
+    val categoryName = MutableLiveData("")
 
-    private fun postCategory(name: String) {
-        val category = createDbCategory(name)
+    val categoryError = MutableLiveData("")
+
+    private fun postCategory() {
+        val category = createDbCategory()
         viewModelScope.launch {
             withContext(Dispatchers.IO + viewModelScope.coroutineContext) {
                 repo.addCategory(category).collect { _postCategoryResponse.postValue(it) }
@@ -35,24 +36,29 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun validateInput(
-        name: String,
-        validation: CategoryValidation
-    ): Boolean {
-        var valid = true
-
-        if (name.isEmpty() || name.isBlank()) {
-            valid = false
-            validation.validateCategoryName(
-                getApplication<Application>().applicationContext.getString(
-                    R.string.category_name_cannot_be_empty
-                )
-            )
-        }
-
-        return valid
+    fun tryPostCategory() {
+        if (validate()) postCategory()
     }
 
-    private fun createDbCategory(name: String) =
-        DbCategory(SharedPref.getCategoryId(getApplication<Application>().applicationContext), name)
+    private fun validate(): Boolean {
+        val categoryValidation = validateCategoryName(categoryName.getNonNullValue())
+
+        categoryError.postValue(categoryValidation)
+
+        return categoryValidation.isEmpty()
+    }
+
+    private fun validateCategoryName(name: String): String {
+        return if (name.isEmpty() || name.isBlank())
+            getApplication<Application>().applicationContext.getString(R.string.category_name_cannot_be_empty)
+        else if (name.length > 120)
+            getApplication<Application>().applicationContext.getString(R.string.cannot_exceed_maximum_character_limit)
+        else ""
+    }
+
+    private fun createDbCategory() =
+        DbCategory(
+            SharedPref.getCategoryId(getApplication<Application>().applicationContext),
+            categoryName.getNonNullValue()
+        )
 }
