@@ -48,9 +48,13 @@ fun String.isMail(): Boolean {
 
 fun TextInputEditText.invalidateError(layout: TextInputLayout) {
     this.doAfterTextChanged {
-        if (layout.error != null)
-            layout.error = null
+        layout.invalidateError()
     }
+}
+
+fun TextInputLayout.invalidateError() {
+    if (this.error != null)
+        this.error = null
 }
 
 fun <T> Fragment.setNavigationResult(key: String, value: T) {

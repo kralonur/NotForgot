@@ -3,10 +3,16 @@ package com.example.notforgot.ui.task_create
 import android.app.Application
 import androidx.lifecycle.*
 import com.example.notforgot.R
+import com.example.notforgot.model.db.items.DbCategory
+import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.db.items.DbTask
 import com.example.notforgot.model.domain.ResultWrapper
+import com.example.notforgot.model.domain.TaskDomain
 import com.example.notforgot.repository.ItemsRepository
 import com.example.notforgot.util.SharedPref
+import com.example.notforgot.util.fromEpochToMs
+import com.example.notforgot.util.getNonNullValue
+import com.example.notforgot.util.toDateString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -25,91 +31,110 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
     val updateTaskResponse: LiveData<ResultWrapper<Unit>>
         get() = _updateTaskResponse
 
+    val taskId = MutableLiveData(TaskCreateConstants.CREATE_TASK_ID)
+    val title = MutableLiveData("")
+    val description = MutableLiveData("")
+    val done = MutableLiveData(0)
+    val created = MutableLiveData(0L)
+    val deadline = MutableLiveData(TaskCreateConstants.EMPTY_DEADLINE)
+    val deadlineText = MediatorLiveData<String>().apply {
+        addSource(deadline) {
+            value = it.fromEpochToMs().toDateString()
+        }
+    }
+    val category = MutableLiveData(TaskCreateConstants.EMPTY_CATEGORY)
+    val priority = MutableLiveData(TaskCreateConstants.EMPTY_PRIORITY)
+
+    val titleError = MutableLiveData("")
+    val descriptionError = MutableLiveData("")
+    val endDateError = MutableLiveData("")
+    val categoryError = MutableLiveData("")
+    val priorityError = MutableLiveData("")
+
     fun getCategoryList() = repo.getCategoryList().catch { Timber.e(it) }
         .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
     fun getPriorityList() = repo.getPriorityList().catch { Timber.e(it) }
         .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
-    fun getTask(id: Int) =
-        repo.getTaskDomain(id).asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
+    fun getTask() =
+        repo.getTaskDomain(taskId.getNonNullValue())
+            .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
 
-    fun validateInput(
-        title: String,
-        description: String,
-        deadline: Long,
-        categoryId: Int,
-        priorityId: Int,
-        validation: TaskCreateValidation
-    ): Boolean {
-        var valid = true
-
-        if (title.isEmpty() || title.isBlank()) {
-            valid = false
-            validation.validateTitle(getApplication<Application>().applicationContext.getString(R.string.title_cannot_be_empty))
-        }
-
-        if (description.isEmpty() || description.isBlank()) {
-            valid = false
-            validation.validateDescription(
-                getApplication<Application>().applicationContext.getString(
-                    R.string.description_cannot_be_empty
-                )
-            )
-        }
-
-        if (deadline == TaskCreateConstants.EMPTY_DEADLINE) {
-            valid = false
-            validation.validateEndDate(getApplication<Application>().applicationContext.getString(R.string.end_date_cannot_be_empty))
-        }
-
-        if (categoryId == TaskCreateConstants.EMPTY_CATEGORY) {
-            valid = false
-            validation.validateCategory(getApplication<Application>().applicationContext.getString(R.string.category_cannot_be_empty))
-        }
-
-        if (priorityId == TaskCreateConstants.EMPTY_PRIORITY) {
-            valid = false
-            validation.validatePriority(getApplication<Application>().applicationContext.getString(R.string.priority_cannot_be_empty))
-        }
-
-        return valid
+    fun updateValuesWithTask(task: TaskDomain) {
+        title.postValue(task.task.title)
+        description.postValue(task.task.description)
+        done.postValue(task.task.done)
+        created.postValue(task.task.created)
+        deadline.postValue(task.task.deadline)
+        category.postValue(task.category)
+        priority.postValue(task.priority)
     }
 
-    fun isChangesMade(
-        title: String,
-        description: String,
-        done: Int,
-        created: Long,
-        deadline: Long,
-        categoryId: Int,
-        priorityId: Int,
-    ): Boolean {
-        if (title != "") return true
-        if (description != "") return true
-        if (done != 0) return true
-        if (created != 0L) return true
-        if (deadline != TaskCreateConstants.EMPTY_DEADLINE) return true
-        if (categoryId != TaskCreateConstants.EMPTY_CATEGORY) return true
-        if (priorityId != TaskCreateConstants.EMPTY_PRIORITY) return true
+    fun validate(): Boolean {
+        val titleValidation = validateTitle(title.getNonNullValue())
+        val descriptionValidation = validateDescription(description.getNonNullValue())
+        val deadlineValidation = validateDeadline(deadline.getNonNullValue())
+        val categoryValidation = validateCategory(category.getNonNullValue())
+        val priorityValidation = validatePriority(priority.getNonNullValue())
+
+        titleError.postValue(titleValidation)
+        descriptionError.postValue(descriptionValidation)
+        endDateError.postValue(deadlineValidation)
+        categoryError.postValue(categoryValidation)
+        priorityError.postValue(priorityValidation)
+
+        return titleValidation.isEmpty() && descriptionValidation.isEmpty()
+                && deadlineValidation.isEmpty() && categoryValidation.isEmpty()
+                && priorityValidation.isEmpty()
+    }
+
+    private fun validateTitle(title: String): String {
+        return if (title.isEmpty() || title.isBlank())
+            getApplication<Application>().applicationContext.getString(R.string.title_cannot_be_empty)
+        else ""
+    }
+
+    private fun validateDescription(description: String): String {
+        return if (description.isEmpty() || description.isBlank())
+            getApplication<Application>().applicationContext.getString(R.string.description_cannot_be_empty)
+        else if (description.length > 120)
+            getApplication<Application>().applicationContext.getString(R.string.cannot_exceed_maximum_character_limit)
+        else ""
+    }
+
+    private fun validateDeadline(deadline: Long): String {
+        return if (deadline == TaskCreateConstants.EMPTY_DEADLINE)
+            getApplication<Application>().applicationContext.getString(R.string.end_date_cannot_be_empty)
+        else ""
+    }
+
+    private fun validateCategory(category: DbCategory): String {
+        return if (category == TaskCreateConstants.EMPTY_CATEGORY)
+            getApplication<Application>().applicationContext.getString(R.string.category_cannot_be_empty)
+        else ""
+    }
+
+    private fun validatePriority(priority: DbPriority): String {
+        return if (priority == TaskCreateConstants.EMPTY_PRIORITY)
+            getApplication<Application>().applicationContext.getString(R.string.priority_cannot_be_empty)
+        else ""
+    }
+
+    fun isChangesMade(): Boolean {
+        if (title.getNonNullValue() != "") return true
+        if (description.getNonNullValue() != "") return true
+        if (done.getNonNullValue() != 0) return true
+        if (created.getNonNullValue() != 0L) return true
+        if (created.getNonNullValue() != TaskCreateConstants.EMPTY_DEADLINE) return true
+        if (category.getNonNullValue() != TaskCreateConstants.EMPTY_CATEGORY) return true
+        if (priority.getNonNullValue() != TaskCreateConstants.EMPTY_PRIORITY) return true
 
         return false
     }
 
-    fun postTask(
-        title: String,
-        description: String,
-        deadline: Long,
-        categoryId: Int,
-        priorityId: Int,
-    ) {
-        val task = createDbTask(
-            title = title,
-            description = description,
-            deadline = deadline,
-            categoryId = categoryId,
-            priorityId = priorityId
-        )
+    fun postTask() {
+        val task = createDbTask()
 
         viewModelScope.launch {
             withContext(Dispatchers.IO + viewModelScope.coroutineContext) {
@@ -118,46 +143,24 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    private fun createDbTask(
-        taskId: Int = SharedPref.getTaskId(getApplication<Application>().applicationContext),
-        title: String,
-        description: String,
-        done: Int = 0,
-        created: Long = 0,
-        deadline: Long,
-        categoryId: Int,
-        priorityId: Int,
-    ) = DbTask(
-        taskId,
-        title,
-        description,
-        done,
-        created,
-        deadline,
-        categoryId,
-        priorityId
+    private fun createDbTask() = DbTask(
+        if (isNewTask()) getNewIdForTask() else taskId.getNonNullValue(),
+        title.getNonNullValue(),
+        description.getNonNullValue(),
+        if (isNewTask()) 0 else done.getNonNullValue(),
+        if (isNewTask()) 0 else created.getNonNullValue(),
+        deadline.getNonNullValue(),
+        category.getNonNullValue().id,
+        priority.getNonNullValue().id
     )
 
-    fun updateTask(
-        taskId: Int,
-        title: String,
-        description: String,
-        done: Int,
-        created: Long,
-        deadline: Long,
-        categoryId: Int,
-        priorityId: Int,
-    ) {
-        val task = createDbTask(
-            taskId,
-            title,
-            description,
-            done,
-            created,
-            deadline,
-            categoryId,
-            priorityId
-        )
+    private fun getNewIdForTask() =
+        SharedPref.getTaskId(getApplication<Application>().applicationContext)
+
+    fun isNewTask() = taskId.getNonNullValue() == TaskCreateConstants.CREATE_TASK_ID
+
+    fun updateTask() {
+        val task = createDbTask()
 
         viewModelScope.launch {
             withContext(Dispatchers.IO + viewModelScope.coroutineContext) {
@@ -168,6 +171,5 @@ class TaskCreateViewModel(application: Application) : AndroidViewModel(applicati
 
     fun getCategoryById(categoryId: Int) = repo.getFlowCategoryById(categoryId)
         .asLiveData(Dispatchers.IO + viewModelScope.coroutineContext)
-
 
 }

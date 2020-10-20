@@ -1,6 +1,7 @@
 package com.example.notforgot.util
 
 import android.graphics.Color
+import android.widget.AutoCompleteTextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
 import com.example.notforgot.R
@@ -42,4 +43,11 @@ fun MaterialButton.bindPriority(priority: DbPriority?) {
 @BindingAdapter("bindErrorText")
 fun TextInputLayout.bindErrorText(error: String?) {
     this.error = error
+}
+
+@BindingAdapter("bindText")
+fun AutoCompleteTextView.bindText(text: String?) {
+    text?.let {
+        this.setText(it, false)
+    }
 }
