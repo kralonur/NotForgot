@@ -14,7 +14,7 @@ import com.example.notforgot.util.invalidateError
 import com.example.notforgot.util.showShortText
 import timber.log.Timber
 
-class RegisterFragment : Fragment(), RegisterValidation {
+class RegisterFragment : Fragment() {
     private val viewModel by viewModels<RegisterViewModel>()
     private lateinit var binding: FragmentRegisterBinding
 
@@ -24,6 +24,8 @@ class RegisterFragment : Fragment(), RegisterValidation {
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = viewModel
         return binding.root
     }
 
@@ -37,24 +39,12 @@ class RegisterFragment : Fragment(), RegisterValidation {
         }
 
         binding.buttonRegister.setOnClickListener {
-            tryRegister()
+            viewModel.tryRegister()
         }
 
         registerResponse()
 
         fetchResponse()
-    }
-
-    override fun validateEmail(validationMessage: String) {
-        binding.textFieldMail.error = validationMessage
-    }
-
-    override fun validatePassword(validationMessage: String) {
-        binding.textFieldPass.error = validationMessage
-    }
-
-    override fun validateName(validationMessage: String) {
-        binding.textFieldName.error = validationMessage
     }
 
     private fun navigateToLogin() {
@@ -106,15 +96,6 @@ class RegisterFragment : Fragment(), RegisterValidation {
         binding.mail.invalidateError(binding.textFieldMail)
         binding.password.invalidateError(binding.textFieldPass)
         binding.passwordRepeat.invalidateError(binding.textFieldPassRepeat)
-    }
-
-    private fun tryRegister() {
-        val mail = binding.mail.text.toString()
-        val name = binding.name.text.toString()
-        val pass = binding.password.text.toString()
-        val passAgain = binding.passwordRepeat.text.toString()
-
-        viewModel.tryRegister(mail, name, pass, passAgain, this)
     }
 
 }

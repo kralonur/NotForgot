@@ -1,23 +1,35 @@
-<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/textFieldCategory"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="@string/create_category"
-    android:paddingStart="@dimen/default_padding"
-    android:paddingTop="@dimen/default_padding"
-    android:paddingEnd="@dimen/default_padding"
-    android:paddingBottom="@dimen/default_padding"
-    app:boxBackgroundColor="@android:color/transparent"
-    app:counterEnabled="true"
-    app:counterMaxLength="140"
-    app:errorEnabled="true">
+<layout>
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/category"
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.notforgot.ui.task_create.category.CategoryViewModel" />
+    </data>
+
+    <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/textFieldCategory"
+        bindErrorText="@{viewModel.categoryError}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:hint="@string/create_category"
+        android:paddingStart="@dimen/default_padding"
+        android:paddingTop="@dimen/default_padding"
+        android:paddingEnd="@dimen/default_padding"
+        android:paddingBottom="@dimen/default_padding"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:counterEnabled="true"
+        app:counterMaxLength="140"
+        app:errorEnabled="true">
 
-</com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:text="@={viewModel.categoryName}" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+</layout>
 

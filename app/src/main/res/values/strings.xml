@@ -37,6 +37,7 @@
     <string name="password_cannot_be_empty">Password cannot be empty!</string>
     <string name="title_cannot_be_empty">Title cannot be empty!</string>
     <string name="description_cannot_be_empty">Description cannot be empty!</string>
+    <string name="cannot_exceed_maximum_character_limit">You cannot exceed maximum character limit!</string>
     <string name="category_cannot_be_empty">Category cannot be empty!</string>
     <string name="category_name_cannot_be_empty">Category name cannot be empty!</string>
     <string name="priority_cannot_be_empty">Priority cannot be empty!</string>
