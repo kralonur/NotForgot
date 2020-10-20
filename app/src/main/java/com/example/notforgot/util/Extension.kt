@@ -6,6 +6,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LiveData
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
@@ -47,9 +48,13 @@ fun String.isMail(): Boolean {
 
 fun TextInputEditText.invalidateError(layout: TextInputLayout) {
     this.doAfterTextChanged {
-        if (layout.error != null)
-            layout.error = null
+        layout.invalidateError()
     }
+}
+
+fun TextInputLayout.invalidateError() {
+    if (this.error != null)
+        this.error = null
 }
 
 fun <T> Fragment.setNavigationResult(key: String, value: T) {
@@ -82,3 +87,6 @@ fun <T> Fragment.getNavigationResult(
         }
     })
 }
+
+fun <T> LiveData<T>.getNonNullValue() =
+    requireNotNull(this.value)

@@ -14,13 +14,15 @@ import com.example.notforgot.util.showShortText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import timber.log.Timber
 
-class CategoryDialog : DialogFragment(), CategoryValidation {
+class CategoryDialog : DialogFragment() {
     private val viewModel by viewModels<CategoryViewModel>()
     private lateinit var binding: LayoutCreateCategoryBinding
     private lateinit var dialog: AlertDialog
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = LayoutCreateCategoryBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = requireParentFragment().viewLifecycleOwner
+        binding.viewModel = viewModel
 
         val builder = MaterialAlertDialogBuilder(requireContext())
 
@@ -45,12 +47,8 @@ class CategoryDialog : DialogFragment(), CategoryValidation {
         return dialog
     }
 
-    override fun validateCategoryName(validationMessage: String) {
-        binding.textFieldCategory.error = validationMessage
-    }
-
     private fun createCategory() {
-        viewModel.tryPostCategory(binding.category.text.toString(), this)
+        viewModel.tryPostCategory()
 
         postCategoryResponse()
     }

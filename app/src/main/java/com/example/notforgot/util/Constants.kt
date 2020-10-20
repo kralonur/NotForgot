@@ -14,4 +14,7 @@ object Constants {
 
         const val TASKS = "tasks"
     }
+
+    const val MAX_DESCRIPTION_LENGTH = 120
+    const val MAX_CATEGORY_NAME_LENGTH = 140
 }

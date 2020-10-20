@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -15,25 +14,17 @@ import com.example.notforgot.databinding.FragmentCreateBinding
 import com.example.notforgot.model.db.items.DbCategory
 import com.example.notforgot.model.db.items.DbPriority
 import com.example.notforgot.model.domain.ResultWrapper
-import com.example.notforgot.model.domain.TaskDomain
 import com.example.notforgot.util.*
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import timber.log.Timber
 
-class TaskCreateFragment : Fragment(), TaskCreateValidation {
+class TaskCreateFragment : Fragment() {
     private val viewModel by viewModels<TaskCreateViewModel>()
     private lateinit var binding: FragmentCreateBinding
     private val args by navArgs<TaskCreateFragmentArgs>()
 
-    private var taskId = TaskCreateConstants.CREATE_TASK_ID
-    private var title = ""
-    private var description = ""
-    private var done = 0
-    private var created = 0L
-    private var deadline = TaskCreateConstants.EMPTY_DEADLINE
-    private var categoryId = TaskCreateConstants.EMPTY_CATEGORY
-    private var priorityId = TaskCreateConstants.EMPTY_PRIORITY
+    private var taskId: Int = TaskCreateConstants.CREATE_TASK_ID
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +32,8 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentCreateBinding.inflate(inflater, container, false)
+        binding.layoutCreate.lifecycleOwner = viewLifecycleOwner
+        binding.layoutCreate.viewModel = viewModel
         binding.toolbar.setNavigationOnClickListener { tryNavigateUp() }
         return binding.root
     }
@@ -48,12 +41,15 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.taskId.value = args.taskId
+
+        viewModel.taskId.observe(viewLifecycleOwner) {
+            taskId = it
+        }
+
         invalidateInput()
 
-        taskId = args.taskId
-
-        if (taskId == TaskCreateConstants.CREATE_TASK_ID) adjustFragmentForNewTask()
-        else adjustFragmentForUpdateTask()
+        adjustFragment()
 
         bindCategoryList()
 
@@ -65,41 +61,24 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
 
         binding.layoutCreate.newCategory.setOnClickListener { showCategoryDialog() }
 
-        binding.layoutCreate.title.doAfterTextChanged { title = it.toString() }
-        binding.layoutCreate.description.doAfterTextChanged { description = it.toString() }
-
         postTaskResponse()
 
         updateTaskResponse()
 
     }
 
-    override fun validateTitle(validationMessage: String) {
-        binding.layoutCreate.textFieldTitle.error = validationMessage
-    }
-
-    override fun validateDescription(validationMessage: String) {
-        binding.layoutCreate.textFieldDescription.error = validationMessage
-    }
-
-    override fun validateCategory(validationMessage: String) {
-        binding.layoutCreate.textFieldSelectCategory.error = validationMessage
-    }
-
-    override fun validatePriority(validationMessage: String) {
-        binding.layoutCreate.textFieldSelectPriority.error = validationMessage
-    }
-
-    override fun validateEndDate(validationMessage: String) {
-        binding.layoutCreate.textFieldEndDate.error = validationMessage
+    private fun adjustFragment() {
+        if (viewModel.isNewTask()) adjustFragmentForNewTask()
+        else adjustFragmentForUpdateTask()
     }
 
     private fun adjustFragmentForUpdateTask() {
         binding.title.text = getString(R.string.edit_task)
         binding.materialButton.text = getString(R.string.edit)
-        viewModel.getTask(taskId).observe(viewLifecycleOwner) {
+
+        viewModel.getTask().observe(viewLifecycleOwner) {
             it?.let {
-                updateLayoutWithTask(it)
+                viewModel.updateValuesWithTask(it)
             }
         }
     }
@@ -116,16 +95,7 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
     }
 
     private fun trySave() {
-        val validInput = viewModel.validateInput(
-            title,
-            description,
-            deadline,
-            categoryId,
-            priorityId,
-            this
-        )
-
-        if (validInput)
+        if (viewModel.validate())
             showSaveDialog()
     }
 
@@ -170,9 +140,8 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
         }
 
         binding.layoutCreate.priority.setOnItemClickListener { _, _, position, _ ->
-            priorityId = prList[position].id
-            if (binding.layoutCreate.textFieldSelectPriority.error != null)
-                binding.layoutCreate.textFieldSelectPriority.error = null
+            viewModel.priority.postValue(prList[position])
+            binding.layoutCreate.textFieldSelectPriority.invalidateError()
         }
     }
 
@@ -189,32 +158,9 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
         }
 
         binding.layoutCreate.category.setOnItemClickListener { _, _, position, _ ->
-            categoryId = catList[position].id
-            if (binding.layoutCreate.textFieldSelectCategory.error != null)
-                binding.layoutCreate.textFieldSelectCategory.error = null
+            viewModel.category.postValue(catList[position])
+            binding.layoutCreate.textFieldSelectCategory.invalidateError()
         }
-    }
-
-    private fun updateLayoutWithTask(task: TaskDomain) {
-        binding.layoutCreate.let {
-            it.title.setText(task.task.title)
-            it.description.setText(task.task.description)
-            it.endDate.setText(
-                task.task.deadline.fromEpochToMs()
-                    .toDateString()
-            )
-            it.category.setText(task.category.name, false)
-            it.priority.setText(task.priority.name, false)
-
-        }
-
-        title = task.task.title
-        description = task.task.description
-        done = task.task.done
-        created = task.task.created
-        deadline = task.task.deadline
-        categoryId = task.category.id
-        priorityId = task.priority.id
     }
 
     private fun invalidateInput() {
@@ -229,10 +175,10 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
             .setMessage(resources.getString(R.string.save_q))
             .setNeutralButton(resources.getString(R.string.cancel), null)
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                if (taskId == 0)
-                    createTask()
+                if (viewModel.isNewTask())
+                    viewModel.postTask()
                 else
-                    updateTask()
+                    viewModel.updateTask()
             }
             .show()
     }
@@ -248,41 +194,8 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
     }
 
     private fun tryNavigateUp() {
-        val isChangesMade = viewModel.isChangesMade(
-            title,
-            description,
-            done,
-            created,
-            deadline,
-            categoryId,
-            priorityId
-        )
-
-        if (isChangesMade) showDiscardDialog()
+        if (viewModel.isChangesMade()) showDiscardDialog()
         else findNavController().navigateUp()
-    }
-
-    private fun createTask() {
-        viewModel.postTask(
-            title,
-            description,
-            deadline,
-            categoryId,
-            priorityId
-        )
-    }
-
-    private fun updateTask() {
-        viewModel.updateTask(
-            taskId,
-            title,
-            description,
-            done,
-            created,
-            deadline,
-            categoryId,
-            priorityId
-        )
     }
 
     private fun showDatePicker() {
@@ -291,11 +204,9 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
         picker.show(childFragmentManager, picker.toString())
         picker.addOnPositiveButtonClickListener { time ->
             (time as Long).let {
-                deadline = it.fromMsToEpoch()
+                viewModel.deadline.postValue(it.fromMsToEpoch())
                 binding.layoutCreate.endDate.setText(it.toDateString())
-
-                if (binding.layoutCreate.textFieldEndDate.error != null)
-                    binding.layoutCreate.textFieldEndDate.error = null
+                binding.layoutCreate.textFieldEndDate.invalidateError()
             }
         }
     }
@@ -311,8 +222,7 @@ class TaskCreateFragment : Fragment(), TaskCreateValidation {
     private fun getCategoryDialogResult() {
         getNavigationResult<Long>(findNavController().previousBackStackEntry!!, "category") {
             viewModel.getCategoryById(it.toInt()).observe(viewLifecycleOwner) { category ->
-                binding.layoutCreate.category.setText(category.name, false)
-                categoryId = category.id
+                viewModel.category.postValue(category)
             }
         }
     }
