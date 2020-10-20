@@ -6,6 +6,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LiveData
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
@@ -82,3 +83,6 @@ fun <T> Fragment.getNavigationResult(
         }
     })
 }
+
+fun <T> LiveData<T>.getNonNullValue() =
+    requireNotNull(this.value)

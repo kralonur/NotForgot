@@ -6,6 +6,7 @@ import androidx.databinding.BindingAdapter
 import com.example.notforgot.R
 import com.example.notforgot.model.db.items.DbPriority
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 
 
@@ -36,4 +37,9 @@ fun MaterialButton.bindPriority(priority: DbPriority?) {
         this.text = priority.name
         this.setBackgroundColor(Color.parseColor(priority.color))
     }
+}
+
+@BindingAdapter("bindErrorText")
+fun TextInputLayout.bindErrorText(error: String?) {
+    this.error = error
 }
