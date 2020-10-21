@@ -12,18 +12,14 @@ abstract class BaseRepository {
         emit(ResultWrapper.Loading)
         try {
             emit(ResultWrapper.Success(apiCall.invoke()))
+        } catch (_: IOException) {
+            emit(ResultWrapper.NetworkError)
+        } catch (throwable: HttpException) {
+            Timber.e(throwable)
+            emit(ResultWrapper.ServerError(throwable.code()))
         } catch (throwable: Throwable) {
             Timber.e(throwable)
-            when (throwable) {
-                is IOException -> emit(ResultWrapper.NetworkError)
-                is HttpException -> {
-                    emit(ResultWrapper.ServerError(throwable.code()))
-                }
-                else -> {
-                    emit(ResultWrapper.Error)
-                }
-            }
+            emit(ResultWrapper.Error)
         }
     }
-
 }
