@@ -156,14 +156,10 @@ class MainFragment : Fragment(), TaskClickListener {
         animation.playAnimation()
         animation.removeAllAnimatorListeners()
 
-        animation.addAnimatorListener(object : Animator.AnimatorListener {
+        animation.addAnimatorListener(object : AnimatorListener {
             override fun onAnimationEnd(animation: Animator?) {
                 dialog.dismiss()
             }
-
-            override fun onAnimationStart(animation: Animator?) {}
-            override fun onAnimationCancel(animation: Animator?) {}
-            override fun onAnimationRepeat(animation: Animator?) {}
         })
     }
 
@@ -178,14 +174,14 @@ class MainFragment : Fragment(), TaskClickListener {
         }
     }
 
-    override fun onClick(task_data: DbTask) {
-        navigateToDetail(task_data.id)
+    override fun onClick(taskData: DbTask) {
+        navigateToDetail(taskData.id)
     }
 
-    override fun onChecked(task_data: DbTask) {
-        viewModel.changeDone(task_data).observe(viewLifecycleOwner) {
+    override fun onChecked(taskData: DbTask) {
+        viewModel.changeDone(taskData).observe(viewLifecycleOwner) {
             when (it) {
-                is ResultWrapper.Success -> Timber.i("${task_data.title} done changed")
+                is ResultWrapper.Success -> Timber.i("${taskData.title} done changed")
             }
         }
     }

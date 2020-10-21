@@ -12,7 +12,7 @@ import timber.log.Timber
 class TaskDetailViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = ItemsRepository(getApplication<Application>().applicationContext)
 
-    fun getTask(task_id: Int) = repo.getTaskDomain(task_id).catch { Timber.e(it) }.asLiveData(
+    fun getTask(taskId: Int) = repo.getTaskDomain(taskId).catch { Timber.e(it) }.asLiveData(
         Dispatchers.IO + viewModelScope.coroutineContext
     )
 
